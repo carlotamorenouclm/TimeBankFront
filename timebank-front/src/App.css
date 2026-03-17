@@ -1,51 +1,7 @@
 :root {
-  --deep-blue: #023abc;
-  --card-blue: #001f51;
-  --accent-yellow: #facc15;
+  --blue: #023abc;
+  --deep-blue: #001f51;
+  --yellow: #facc15;
   --text-light: #f8fafc;
   --text-muted: #94a3b8;
-}
-
-body {
-  background-color: var(--deep-blue);
-  color: var(--text-light);
-  font-family: 'Inter', sans-serif;
-}
-
-.navbar-dark-custom {
-  background-color: rgba(15, 23, 42, 0.9);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.btn-yellow {
-  background-color: var(--accent-yellow) !important;
-  color: #000 !important;
-  border: none !important;
-  font-weight: 700 !important;
-  padding: 12px 30px !important;
-  transition: all 0.3s ease !important;
-}
-
-.btn-yellow:hover {
-  background-color: #eab308 !important; /* Amarillo un poco más oscuro */
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(250, 204, 21, 0.4);
-}
-
-.card-timebank {
-  background-color: var(--card-blue) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
-  border-radius: 24px !important;
-  color: var(--text-light) !important;
-  transition: transform 0.3s ease;
-}
-
-.card-timebank:hover {
-  transform: translateY(-10px);
-  border-color: var(--accent-yellow) !important; /* El borde se ilumina */
-}
-
-.text-yellow {
-  color: var(--accent-yellow) !important;
 }
