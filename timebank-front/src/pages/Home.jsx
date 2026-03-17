@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Navbar, Nav, Button, Row, Col, Card } from 'react-bootstrap';
 import '../App.css';
 import { homeImages } from '../constants/images';
+import { Link } from 'react-router-dom'
 
 const HomePage = () => {
   return (
@@ -18,7 +19,9 @@ const HomePage = () => {
             <Nav className="ms-auto align-items-center">
               <Nav.Link href="#how" className="me-3">Cómo funciona</Nav.Link>
               <Nav.Link href="#explore" className="me-3">Explorar servicios</Nav.Link>
-              <Button variant="outline-primary" className="rounded-pill px-4 me-2">Login</Button>
+              <Link to="/login" className="btn btn-outline-primary rounded-pill px-4 me-2">
+                Login
+              </Link>
               <Button variant="primary" className="rounded-pill px-4">Únete gratis</Button>
             </Nav>
           </Navbar.Collapse>
