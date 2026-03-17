@@ -2,6 +2,7 @@ import React from 'react';
 import { Container, Navbar, Nav, Button, Row, Col, Card } from 'react-bootstrap';
 import '../App.css';
 import { homeImages } from '../constants/images';
+import { Link } from 'react-router-dom'
 import logoTimeBank from '../assets/logoTimeBank.PNG';
 import CardsHome from '../components/CardsHome';
 import ButtonPill from '../components/ButtonPill';
