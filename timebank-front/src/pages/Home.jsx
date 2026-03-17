@@ -22,9 +22,9 @@ const HomePage = () => {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto align-items-center">
-              <Nav.Link href="#how" className="me-3">Cómo funciona</Nav.Link>
-              <ButtonPill className="px-4 me-2" bg="transparent" border="var(--blue)" font="var(--blue)">Login</ButtonPill>
-              <ButtonPill className="px-4" bg="var(--blue)">Únete gratis</ButtonPill>
+              <Nav.Link href="#how" className="me-3">How it works</Nav.Link>
+              <ButtonPill as={Link} to="/login"className="px-4 me-2" bg="transparent" border="var(--blue)" font="var(--blue)">Login</ButtonPill>
+              <ButtonPill as={Link} to="/register"className="px-4" bg="var(--blue)">Join us</ButtonPill>
             </Nav>
           </Navbar.Collapse>
         </Container>
