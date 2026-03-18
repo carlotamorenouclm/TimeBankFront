@@ -3,32 +3,16 @@ import { Container, Navbar, Nav, Button, Row, Col, Card } from 'react-bootstrap'
 import '../App.css';
 import { homeImages } from '../constants/images';
 import { Link } from 'react-router-dom'
-import logoTimeBank from '../assets/logoTimeBank.PNG';
 import CardsHome from '../components/CardsHome';
 import ButtonPill from '../components/ButtonPill';
+import NavbarCustom from '../components/NavbarCustom';
+
 
 const HomePage = () => {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", color: '#2d3436' }}>
-      {/* --- NAVBAR --- */}
-      <Navbar bg="white" expand="lg" className="py-3 shadow-sm sticky-top">
-        <Container>
-          <Navbar.Brand href="#home" className="fw-bold fs-4 d-flex align-items-center gap-2" 
-          style={{ color: 'var(--deep-blue)' }}>
-            <img src={logoTimeBank} alt="TimeBank logo" 
-            style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
-            <span>TimeBank</span>
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="ms-auto align-items-center">
-              <Nav.Link href="#how" className="me-3">How it works</Nav.Link>
-              <ButtonPill as={Link} to="/login"className="px-4 me-2" bg="transparent" border="var(--blue)" font="var(--blue)">Login</ButtonPill>
-              <ButtonPill as={Link} to="/register"className="px-4" bg="var(--blue)">Join us</ButtonPill>
-            </Nav>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      {/* NAVBAR */}
+      <NavbarCustom />
 
       {/* --- HERO SECTION --- */}
       <header className="py-5" style={{ background: 'linear-gradient(135deg, #5a6df9b7 0%, #fff27ae8 100%)' }}>
