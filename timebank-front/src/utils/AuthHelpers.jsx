@@ -4,31 +4,21 @@ const decodeBase64Url = (base64Url) => {
   return atob(padded);
 };
 
-const getTokenPayload = () => {
+const isAuthenticated = () => {
   const token = localStorage.getItem('access_token');
-  if (!token) return null;
+  if (!token) return false;
 
   try {
     const parts = token.split('.');
-    if (parts.length !== 3) return null;
-    return JSON.parse(decodeBase64Url(parts[1]));
+    if (parts.length !== 3) return false;
+
+    const payload = JSON.parse(decodeBase64Url(parts[1]));
+
+    if (!payload.exp) return false;
+    return payload.exp * 1000 > Date.now();
   } catch {
-    return null;
+    return false;
   }
 };
 
-const isAuthenticated = () => {
-  const payload = getTokenPayload();
-  if (!payload?.exp) return false;
-  return payload.exp * 1000 > Date.now();
-};
-
-const getUserRole = () => {
-  const payload = getTokenPayload();
-  if (!payload?.role) return null;
-  return String(payload.role).toLowerCase();
-};
-
-const isAdmin = () => getUserRole() === 'admin';
-
-export { getTokenPayload, getUserRole, isAdmin, isAuthenticated };
+export { isAuthenticated };

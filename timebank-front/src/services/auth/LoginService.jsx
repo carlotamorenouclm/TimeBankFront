@@ -31,3 +31,34 @@ export const loginUser = async ({ email, password }) => {
 		throw error;
 	}
 };
+
+export const checkIfAdmin = async (accessToken) => {
+	try {
+		if (!API_URL) {
+			throw new Error('VITE_API_URL is not configured');
+		}
+
+		if (!accessToken) {
+			throw new Error('Missing access token');
+		}
+
+		const response = await fetch(`${API_URL}/me/isAdmin`, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${accessToken}`
+			}
+		});
+
+		const responseData = await response.json().catch(() => null);
+
+		if (!response.ok) {
+			const error = responseData?.detail;
+			throw new Error(error || `Admin validation failed (status ${response.status})`);
+		}
+
+		return Boolean(responseData);
+	} catch (error) {
+		console.error('Error validating admin access:', error);
+		throw error;
+	}
+};

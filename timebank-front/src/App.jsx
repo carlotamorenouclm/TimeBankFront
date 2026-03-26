@@ -6,7 +6,7 @@ import DashboardUser from './pages/DashboardUser'
 import DashboardAdmin from './pages/DashboardAdmin'
 
 import ProtectedRoute from './utils/ProtectedRoute'
-import { isAdmin, isAuthenticated } from './utils/AuthHelpers';
+import { isAuthenticated } from './utils/AuthHelpers';
 
 function App() {
   return (
@@ -17,8 +17,8 @@ function App() {
       <Route element={<ProtectedRoute canAccess={isAuthenticated()} />}>
         <Route path="/dashboarduser" element={<DashboardUser />} />
       </Route>
-      <Route element={<ProtectedRoute canAccess={isAuthenticated() && isAdmin()} redirectPath="/dashboarduser" />}>
-        <Route path="/admin" element={<DashboardAdmin />} />
+      <Route element={<ProtectedRoute canAccess={isAuthenticated()} redirectPath="/dashboarduser" />}>
+        <Route path="/dashboardadmin" element={<DashboardAdmin />} />
       </Route>
     </Routes>
   )

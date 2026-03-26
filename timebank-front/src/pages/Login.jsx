@@ -4,8 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
 import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
-import { loginUser } from '../services/auth/LoginService';
-import { getUserRole } from '../utils/AuthHelpers';
+import { checkIfAdmin, loginUser } from '../services/auth/LoginService';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -19,23 +18,23 @@ const Login = () => {
     setIsLoading(true);
     setError('');
 
-    loginUser({ email, password })
-      .then((data) => {
-        if (!data?.access_token) {
-          throw new Error('Login failed: No access token received');
-        }
+    try {
+      const data = await loginUser({ email, password });
 
-        localStorage.setItem('access_token', data.access_token);
-        const role = getUserRole();
+      if (!data?.access_token) {
+        throw new Error('Login failed: No access token received');
+      }
 
-        navigate(role === 'admin' ? '/admin' : '/dashboarduser');
-      })
-      .catch((error) => {
-        setError(error.message || 'Error during login');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+      localStorage.setItem('access_token', data.access_token);
+
+      const adminUser = await checkIfAdmin(data.access_token);
+
+      navigate(adminUser ? '/dashboardadmin' : '/dashboarduser');
+    } catch (error) {
+      setError(error.message || 'Error during login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -82,7 +81,7 @@ const Login = () => {
                   <div className="text-end mb-4">
                     <Link to="/forgot-password" style={{ color: 'var(--blue)', textDecoration: 'none', fontSize: '0.9rem' }}>Forgot password?</Link></div>
 
-                  {/* Error Message */}
+                {/* Error Message */}
                   {error && (
                     <div className="alert alert-danger mb-4" role="alert">
                       {error}
