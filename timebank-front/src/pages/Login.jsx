@@ -1,18 +1,37 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
 import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
+import { loginUser } from '../services/auth/LoginService';
 
 const Login = () => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Login:', { email, password });
-    // Aquí irá la lógica de autenticación
+    setIsLoading(true);
+    setError('');
+
+  loginUser({ email, password })
+    .then((data) => {
+      if (!data?.access_token) {
+        throw new Error('Login failed: No access token received');
+      }
+      localStorage.setItem('access_token', data.access_token);
+      navigate('/dashboarduser');
+    })
+    .catch((error) => {
+      setError(error.message || 'Error during login');
+    })
+    .finally(() => {
+      setIsLoading(false);
+    });
   };
 
   return (
@@ -59,13 +78,23 @@ const Login = () => {
                   <div className="text-end mb-4">
                     <Link to="/forgot-password" style={{ color: 'var(--blue)', textDecoration: 'none', fontSize: '0.9rem' }}>Forgot password?</Link></div>
 
+                  {/* Error Message */}
+                  {error && (
+                    <div className="alert alert-danger mb-4" role="alert">
+                      {error}
+                    </div>
+                  )}
+
                   {/* Login Button */}
                   <div className="d-grid mb-4">
-                    <ButtonPill type="submit" size="lg" className="py-3 fw-bold">Sign in</ButtonPill></div>
+                    <ButtonPill type="submit" size="lg" className="py-3 fw-bold" disabled={isLoading}>
+                      {isLoading ? 'Signing in...' : 'Sign in'}
+                    </ButtonPill>
+                  </div>
 
                   {/* Sign Up Link */}
                   <p className="text-center text-muted mb-0">Don't have an account?{' '}
-                    <Link to="/register" style={{ color: 'var(--blue)', textDecoration: 'none', fontWeight: 'bold' }}>Sign up here</Link>
+                    <Link to="/signup" style={{ color: 'var(--blue)', textDecoration: 'none', fontWeight: 'bold' }}>Sign up here</Link>
                   </p>
                 </Form>
               </div>

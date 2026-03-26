@@ -1,27 +1,32 @@
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
 import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
-import { registerUser } from '../services/auth/RegisterService';
+import { registerUser } from '../services/auth/SignUpService';
 
 const Signup = () => {
+  const navigate = useNavigate();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleRegister = (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    
     registerUser({ firstName, lastName, email, password })
       .then(() => {
-        console.log('Registration successful');
-        window.location.href = '/login';
+        navigate('/login');
       })
       .catch((error) => {
-        console.error('Registration error:', error);
-
+        setError(error.message || 'Error during registration');
+        setIsLoading(false);
       });
   };
 
@@ -89,9 +94,24 @@ const Signup = () => {
                     />
                   </Form.Group>
 
+                  {/* Error Message */}
+                  {error && (
+                    <div className="alert alert-danger mb-4" role="alert">
+                      {error}
+                    </div>
+                  )}
+
                   {/* Register Button */}
                   <div className="d-grid mb-4">
-                    <ButtonPill type="submit" size="lg" className="py-3 fw-bold">Create Account</ButtonPill></div>
+                    <ButtonPill 
+                      type="submit" 
+                      size="lg" 
+                      className="py-3 fw-bold" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? 'Creating Account...' : 'Create Account'}
+                    </ButtonPill>
+                  </div>
 
                   {/* Sign In Link */}
                   <p className="text-center text-muted mb-0">
