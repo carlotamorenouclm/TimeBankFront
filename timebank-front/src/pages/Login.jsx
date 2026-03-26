@@ -5,6 +5,7 @@ import '../App.css';
 import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
 import { loginUser } from '../services/auth/LoginService';
+import { getUserRole } from '../utils/AuthHelpers';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -18,20 +19,23 @@ const Login = () => {
     setIsLoading(true);
     setError('');
 
-  loginUser({ email, password })
-    .then((data) => {
-      if (!data?.access_token) {
-        throw new Error('Login failed: No access token received');
-      }
-      localStorage.setItem('access_token', data.access_token);
-      navigate('/dashboarduser');
-    })
-    .catch((error) => {
-      setError(error.message || 'Error during login');
-    })
-    .finally(() => {
-      setIsLoading(false);
-    });
+    loginUser({ email, password })
+      .then((data) => {
+        if (!data?.access_token) {
+          throw new Error('Login failed: No access token received');
+        }
+
+        localStorage.setItem('access_token', data.access_token);
+        const role = getUserRole();
+
+        navigate(role === 'admin' ? '/admin' : '/dashboarduser');
+      })
+      .catch((error) => {
+        setError(error.message || 'Error during login');
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
