@@ -14,10 +14,10 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route element={<ProtectedRoute canAccess={isAuthenticated()} />}>
+      <Route element={<ProtectedRoute canAccess={isAuthenticated} />}>
         <Route path="/dashboarduser" element={<DashboardUser />} />
       </Route>
-      <Route element={<ProtectedRoute canAccess={isAuthenticated()} redirectPath="/dashboarduser" />}>
+      <Route element={<ProtectedRoute canAccess={isAuthenticated} redirectPath="/dashboarduser" />}>
         <Route path="/dashboardadmin" element={<DashboardAdmin />} />
       </Route>
     </Routes>
