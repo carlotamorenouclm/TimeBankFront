@@ -1,9 +1,12 @@
 import { Navigate, Outlet } from 'react-router-dom';
 
 const ProtectedRoute = ({ canAccess, redirectPath="/" }) => {
-    if (!canAccess) {
+    const hasAccess = typeof canAccess === 'function' ? canAccess() : Boolean(canAccess);
+
+    if (!hasAccess) {
         return <Navigate to={redirectPath} replace />;
     }
+
     return <Outlet />;
 }
 
