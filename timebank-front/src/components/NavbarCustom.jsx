@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logoTimeBank from '../assets/logoTimeBank.PNG';
 import ButtonPill from './ButtonPill';
 import { isAuthenticated } from '../utils/AuthHelpers';
+import { checkIfAdmin } from '../services/auth/LoginService';
 
 const NavbarCustom = () => {
   const navigate = useNavigate();
@@ -12,6 +13,22 @@ const NavbarCustom = () => {
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     navigate('/');
+  };
+
+  const handleGoToDashboard = async () => {
+    const token = localStorage.getItem('access_token');
+
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    try {
+      const adminUser = await checkIfAdmin(token);
+      navigate(adminUser ? '/dashboardadmin' : '/dashboarduser');
+    } catch {
+      navigate('/dashboarduser');
+    }
   };
 
   return (
@@ -27,7 +44,10 @@ const NavbarCustom = () => {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto align-items-center">
             {authenticated ? (
-              <ButtonPill onClick={handleLogout} className="px-4" bg="transparent" border="var(--blue)" font="var(--blue)"> Logout</ButtonPill>
+              <>
+                <ButtonPill onClick={handleGoToDashboard} className="px-4 me-2" bg="var(--blue)">Dashboard</ButtonPill>
+                <ButtonPill onClick={handleLogout} className="px-4" bg="transparent" border="var(--blue)" font="var(--blue)">Logout</ButtonPill>
+              </>
             ) : (
               <>
                 <ButtonPill as={Link} to="/login" className="px-4 me-2" bg="transparent" border="var(--blue)" font="var(--blue)">Login</ButtonPill>
