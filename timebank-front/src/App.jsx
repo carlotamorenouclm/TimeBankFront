@@ -4,6 +4,9 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import DashboardUser from './pages/DashboardUser'
 import DashboardAdmin from './pages/DashboardAdmin'
+import History from './pages/History';
+import Inbox from './pages/Inbox';
+import Wallet from './pages/Wallet';
 
 import ProtectedRoute from './utils/ProtectedRoute'
 import { isAuthenticated } from './utils/AuthHelpers';
@@ -14,6 +17,10 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/history" element={<History />} />
+      <Route path="/inbox" element={<Inbox />} />
+      <Route path="/wallet" element={<Wallet />} />
       <Route element={<ProtectedRoute canAccess={isAuthenticated} />}>
         <Route path="/dashboarduser" element={<DashboardUser />} />
       </Route>

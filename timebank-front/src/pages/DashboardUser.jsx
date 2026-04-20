@@ -1,5 +1,6 @@
 import React from 'react';
 import { Container, Row, Col, Nav } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import ServiceCard from '../components/ServiceCard';
 
@@ -63,20 +64,19 @@ const DashboardUser = () => {
     }
   ];
 
-  return (
+ return (
     <div
       style={{
         minHeight: '100vh',
         backgroundColor: '#f8f9fc',
         fontFamily: "'Inter', sans-serif",
-        color: '#2d3436'
+        color: '#2d3436',
       }}
     >
       <NavbarCustom />
 
       <Container fluid className="px-0">
-        <Row className="g-0" style={{ minHeight: 'calc(100vh - 74px)' }}>
-          
+        <Row className="g-0" style={{ minHeight: 'calc(100vh - 70px)' }}>
           {/* SIDEBAR */}
           <Col
             xs={12}
@@ -84,71 +84,72 @@ const DashboardUser = () => {
             lg={2}
             style={{
               backgroundColor: '#dbe8f7',
-              borderRight: '1px solid rgba(0,0,0,0.05)'
+              borderRight: '1px solid rgba(0,0,0,0.08)',
             }}
           >
             <div className="p-4 text-center border-bottom">
               <div
                 className="mx-auto mb-3 rounded-circle bg-white"
                 style={{
-                  width: '78px',
-                  height: '78px',
-                  border: '2px solid rgba(0,0,0,0.12)'
+                  width: '80px',
+                  height: '80px',
+                  border: '2px solid rgba(0,0,0,0.15)',
                 }}
               ></div>
 
-              <div className="fw-semibold" style={{ color: 'var(--deep-blue)' }}>
-                Antonia
-              </div>
+              <div className="fw-semibold">Antonia</div>
               <div className="text-muted small">User</div>
             </div>
 
             <Nav className="flex-column">
               <Nav.Link
+                as={Link}
+                to="/dashboarduser"
                 className="px-4 py-3 fw-semibold"
                 style={{
-                  backgroundColor: 'var(--blue)',
-                  color: 'white'
+                  backgroundColor: '#6ea8fe',
+                  color: 'white',
                 }}
               >
                 Catalog
               </Nav.Link>
 
-              <Nav.Link className="px-4 py-3">History</Nav.Link>
-              <Nav.Link className="px-4 py-3">Inbox</Nav.Link>
-              <Nav.Link className="px-4 py-3">Wallet</Nav.Link>
+              <Nav.Link
+                as={Link}
+                to="/history"
+                className="px-4 py-3 fw-semibold text-dark"
+              >
+                History
+              </Nav.Link>
+
+              <Nav.Link
+                as={Link}
+                to="/inbox"
+                className="px-4 py-3 fw-semibold text-dark"
+              >
+                Inbox
+              </Nav.Link>
+
+              <Nav.Link
+                as={Link}
+                to="/wallet"
+                className="px-4 py-3 fw-semibold text-dark"
+              >
+                Wallet
+              </Nav.Link>
             </Nav>
           </Col>
 
-          {/* MAIN */}
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
-            <div className="mb-4">
-              <h1
-                className="fw-bold mb-2"
-                style={{ color: 'var(--deep-blue)' }}
-              >
-                Service Catalog
-              </h1>
-              <p className="text-muted mb-0">
-                Discover services offered by the community.
-              </p>
-            </div>
+            <h2 className="fw-bold mb-4">Available Services</h2>
 
             <Row className="g-4">
               {services.map((service, index) => (
                 <Col xs={12} key={index}>
-                  <ServiceCard
-                    title={service.title}
-                    description={service.description}
-                    availability={service.availability}
-                    extra={service.extra}
-                    price={service.price}
-                    image={service.image}
-                  />
+                    <ServiceCard {...service} />
                 </Col>
               ))}
             </Row>
-
           </Col>
         </Row>
       </Container>
