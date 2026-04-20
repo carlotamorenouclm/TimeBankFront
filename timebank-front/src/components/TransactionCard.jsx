@@ -36,15 +36,15 @@ const TransactionCard = ({ transaction }) => {
             </div>
 
             <p className="mb-1 text-muted">
-              <strong>Tipo:</strong> {transaction.type}
+              <strong>Type:</strong> {transaction.type}
             </p>
 
             <p className="mb-1 text-muted">
-              <strong>Usuario:</strong> {transaction.otherUser}
+              <strong>User:</strong> {transaction.otherUser}
             </p>
 
             <p className="mb-3 text-muted">
-              <strong>Fecha:</strong> {transaction.date}
+              <strong>Date:</strong> {transaction.date}
             </p>
           </div>
 

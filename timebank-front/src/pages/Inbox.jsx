@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
-import { Container, Row, Col, Nav, Card, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Nav, Modal, Form, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import Request from '../components/Request';
+
+import bikeImg from '../assets/bike.jpg';
+import cleanImg from '../assets/clean.jpg';
+import dogImg from '../assets/dog.jpg';
+import computerImg from '../assets/computer.avif';
 
 const Inbox = () => {
   const [requests, setRequests] = useState([
@@ -9,9 +15,44 @@ const Inbox = () => {
       id: 1,
       service: 'Bike Repair',
       description: 'We fix your bike.',
-      date: 'Availability: Mondays, Wednesdays and Fridays from 16:00',
-      address: 'Address: Calle Calatrava Nº2',
-      message: 'Additional message: The bell is not working',
+      date: 'Monday 14 at 16:00',
+      address: 'Calle Calatrava Nº2',
+      message: 'Doorbell is not working',
+      image: bikeImg,
+      price: '10',
+      status: 'pending',
+    },
+    {
+      id: 2,
+      service: 'House Cleaning',
+      description: 'I clean your house.',
+      date: 'Wednesday 16 at 10:00',
+      address: 'Calle Toledo Nº5',
+      message: 'Bring your own products',
+      image: cleanImg,
+      price: '12',
+      status: 'pending',
+    },
+    {
+      id: 3,
+      service: 'Dog Walking',
+      description: 'I walk your dog.',
+      date: 'Friday 18 at 18:00',
+      address: 'Central Park',
+      message: 'Small dog, very friendly',
+      image: dogImg,
+      price: '6',
+      status: 'pending',
+    },
+    {
+      id: 4,
+      service: 'Computer Repair',
+      description: 'Fix your computer.',
+      date: 'Saturday 20 at 12:00',
+      address: 'Online',
+      message: 'Laptop not turning on',
+      image: computerImg,
+      price: '15',
       status: 'pending',
     },
   ]);
@@ -21,14 +62,14 @@ const Inbox = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
 
   const [acceptForm, setAcceptForm] = useState({
-    aclaraciones: '',
+    clarification: '',
   });
 
   const [rejectReason, setRejectReason] = useState('');
 
   const openAcceptModal = (request) => {
     setSelectedRequest(request);
-    setAcceptForm({ aclaraciones: '' });
+    setAcceptForm({ clarification: '' });
     setShowAcceptModal(true);
   };
 
@@ -45,7 +86,7 @@ const Inbox = () => {
           ? {
               ...req,
               status: 'accepted',
-              aclaraciones: acceptForm.aclaraciones,
+              clarification: acceptForm.clarification,
             }
           : req
       )
@@ -148,7 +189,7 @@ const Inbox = () => {
           </Col>
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
-            <h5 className="fw-bold mb-3">You have received:</h5>
+            <h2 className="fw-bold mb-4">Received requests</h2>
 
             {pendingRequests.length === 0 ? (
               <div
@@ -158,136 +199,65 @@ const Inbox = () => {
                 <p className="mb-0 text-muted">You have no pending requests.</p>
               </div>
             ) : (
-              pendingRequests.map((request) => (
-                <Card
-                  key={request.id}
-                  className="border-0 shadow-sm mb-4"
-                  style={{
-                    borderRadius: '0px',
-                    overflow: 'hidden',
-                    maxWidth: '900px',
-                  }}
-                >
-                  <Row className="g-0">
-                    <Col
-                      xs={12}
-                      md={2}
-                      style={{
-                        backgroundColor: '#9ea7b1',
-                        minHeight: '150px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontSize: '0.9rem',
-                      }}
-                    >
-                      Image cap
-                    </Col>
-
-                    <Col
-                      xs={12}
-                      md={8}
-                      style={{
-                        backgroundColor: '#dbe8f7',
-                      }}
-                    >
-                      <Card.Body>
-                        <h5 className="fw-bold mb-2">{request.service}</h5>
-                        <p className="mb-1">{request.description}</p>
-                        <p className="mb-1 text-muted">Solicitud : {request.date}</p>
-                        <p className="mb-1 text-muted">{request.address}</p>
-                        <p className="mb-0 text-muted">{request.message}</p>
-                      </Card.Body>
-                    </Col>
-
-                    <Col
-                      xs={12}
-                      md={2}
-                      className="d-flex align-items-center justify-content-center gap-3"
-                      style={{
-                        backgroundColor: '#dbe8f7',
-                      }}
-                    >
-                      <Button
-                        variant="success"
-                        onClick={() => openAcceptModal(request)}
-                        style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '8px',
-                          padding: 0,
-                          fontSize: '1.3rem',
-                          lineHeight: 1,
-                        }}
-                      >
-                        ✓
-                      </Button>
-
-                      <Button
-                        variant="danger"
-                        onClick={() => openRejectModal(request)}
-                        style={{
-                          width: '42px',
-                          height: '42px',
-                          borderRadius: '8px',
-                          padding: 0,
-                          fontSize: '1.3rem',
-                          lineHeight: 1,
-                        }}
-                      >
-                        ✕
-                      </Button>
-                    </Col>
-                  </Row>
-                </Card>
-              ))
+              <Row className="g-4">
+                {pendingRequests.map((request) => (
+                  <Col xs={12} key={request.id}>
+                    <Request
+                      request={request}
+                      onAccept={openAcceptModal}
+                      onReject={openRejectModal}
+                    />
+                  </Col>
+                ))}
+              </Row>
             )}
 
             {processedRequests.length > 0 && (
               <>
-                <h5 className="fw-bold mt-5 mb-3">Solicitudes procesadas</h5>
+                <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
 
-                {processedRequests.map((request) => (
-                  <Card
-                    key={request.id}
-                    className="border-0 shadow-sm mb-3"
-                    style={{ borderRadius: '12px', maxWidth: '900px' }}
-                  >
-                    <Card.Body
-                      style={{
-                        backgroundColor:
-                          request.status === 'accepted' ? '#e8f5e9' : '#fdeaea',
-                      }}
-                    >
-                      <div className="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                        <div>
-                          <h6 className="fw-bold mb-2">{request.service}</h6>
-                          <p className="mb-1">{request.description}</p>
-                          <p className="mb-1 text-muted">Solicitud: {request.date}</p>
-                          <p className="mb-1 text-muted">{request.address}</p>
-                          <p className="mb-2 text-muted">{request.message}</p>
+                <Row className="g-3">
+                  {processedRequests.map((request) => (
+                    <Col xs={12} key={request.id}>
+                      <div
+                        className="shadow-sm p-4"
+                        style={{
+                          borderRadius: '20px',
+                          backgroundColor:
+                            request.status === 'accepted' ? '#e8f5e9' : '#fdeaea',
+                        }}
+                      >
+                        <h5 className="fw-bold mb-2">{request.service}</h5>
+                        <p className="mb-1">{request.description}</p>
+                        <p className="mb-1 text-muted">
+                          <strong>Request:</strong> {request.date}
+                        </p>
+                        <p className="mb-1 text-muted">
+                          <strong>Address:</strong> {request.address}
+                        </p>
+                        <p className="mb-2 text-muted">
+                          <strong>Message:</strong> {request.message}
+                        </p>
 
-                          {request.status === 'accepted' && request.aclaraciones && (
-                            <p className="mb-0">
-                              <strong>Additional message:</strong> {request.aclaraciones}
-                            </p>
-                          )}
+                        {request.status === 'accepted' && request.clarification && (
+                          <p className="mb-1">
+                            <strong>Clarification:</strong> {request.clarification}
+                          </p>
+                        )}
 
-                          {request.status === 'rejected' && request.rejectReason && (
-                            <p className="mb-0">
-                              <strong>Motivo del rechazo:</strong> {request.rejectReason}
-                            </p>
-                          )}
-                        </div>
+                        {request.status === 'rejected' && request.rejectReason && (
+                          <p className="mb-1">
+                            <strong>Reject reason:</strong> {request.rejectReason}
+                          </p>
+                        )}
 
-                        <div className="fw-bold">
-                          {request.status === 'accepted' ? 'Aceptada' : 'Rechazada'}
-                        </div>
+                        <p className="mb-0 fw-bold">
+                          {request.status === 'accepted' ? 'Accepted' : 'Rejected'}
+                        </p>
                       </div>
-                    </Card.Body>
-                  </Card>
-                ))}
+                    </Col>
+                  ))}
+                </Row>
               </>
             )}
           </Col>
@@ -297,18 +267,25 @@ const Inbox = () => {
       <Modal show={showAcceptModal} onHide={() => setShowAcceptModal(false)} centered>
         <Modal.Body style={{ backgroundColor: '#dbe8f7', padding: '2rem' }}>
           <h4 className="fw-bold mb-4">{selectedRequest?.service}</h4>
+
           <p className="mb-1">{selectedRequest?.description}</p>
-          <p className="mb-1">Solicitud : {selectedRequest?.date}</p>
-          <p className="mb-1">{selectedRequest?.address}</p>
-          <p className="mb-3">{selectedRequest?.message}</p>
+          <p className="mb-1">
+            <strong>Request:</strong> {selectedRequest?.date}
+          </p>
+          <p className="mb-1">
+            <strong>Address:</strong> {selectedRequest?.address}
+          </p>
+          <p className="mb-3">
+            <strong>Message:</strong> {selectedRequest?.message}
+          </p>
 
           <Form.Group className="mb-3">
-            <Form.Label>Additional message:</Form.Label>
+            <Form.Label>Clarification</Form.Label>
             <Form.Control
               type="text"
-              value={acceptForm.aclaraciones}
+              value={acceptForm.clarification}
               onChange={(e) =>
-                setAcceptForm({ ...acceptForm, aclaraciones: e.target.value })
+                setAcceptForm({ ...acceptForm, clarification: e.target.value })
               }
             />
           </Form.Group>
@@ -324,13 +301,20 @@ const Inbox = () => {
       <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)} centered>
         <Modal.Body style={{ backgroundColor: '#f8d7da', padding: '2rem' }}>
           <h4 className="fw-bold mb-4">{selectedRequest?.service}</h4>
+
           <p className="mb-1">{selectedRequest?.description}</p>
-          <p className="mb-1">Solicitud : {selectedRequest?.date}</p>
-          <p className="mb-1">{selectedRequest?.address}</p>
-          <p className="mb-3">{selectedRequest?.message}</p>
+          <p className="mb-1">
+            <strong>Request:</strong> {selectedRequest?.date}
+          </p>
+          <p className="mb-1">
+            <strong>Address:</strong> {selectedRequest?.address}
+          </p>
+          <p className="mb-3">
+            <strong>Message:</strong> {selectedRequest?.message}
+          </p>
 
           <Form.Group className="mb-3">
-            <Form.Label>Reason for rejection:</Form.Label>
+            <Form.Label>Reject reason</Form.Label>
             <Form.Control
               type="text"
               value={rejectReason}
