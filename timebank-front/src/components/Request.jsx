@@ -37,6 +37,10 @@ const Request = ({ request, onAccept, onReject }) => {
             {request.service}
           </h3>
 
+          <p className="mb-2 text-muted">
+            <strong>From:</strong> {request.requester_name}
+          </p>
+
           <p className="mb-2">{request.description}</p>
 
           <p className="mb-1 text-muted">

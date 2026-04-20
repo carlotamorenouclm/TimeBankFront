@@ -1,71 +1,56 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Modal, Form, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import Request from '../components/Request';
-
-import bikeImg from '../assets/bike.jpg';
-import cleanImg from '../assets/clean.jpg';
-import dogImg from '../assets/dog.jpg';
-import computerImg from '../assets/computer.avif';
+import { getServiceImage } from '../constants/serviceImages';
+import {
+  acceptInboxRequest,
+  getInbox,
+  getPortalSummary,
+  rejectInboxRequest,
+} from '../services/portal/PortalService';
 
 const Inbox = () => {
-  const [requests, setRequests] = useState([
-    {
-      id: 1,
-      service: 'Bike Repair',
-      description: 'We fix your bike.',
-      date: 'Monday 14 at 16:00',
-      address: 'Calle Calatrava Nº2',
-      message: 'Doorbell is not working',
-      image: bikeImg,
-      price: '10',
-      status: 'pending',
-    },
-    {
-      id: 2,
-      service: 'House Cleaning',
-      description: 'I clean your house.',
-      date: 'Wednesday 16 at 10:00',
-      address: 'Calle Toledo Nº5',
-      message: 'Bring your own products',
-      image: cleanImg,
-      price: '12',
-      status: 'pending',
-    },
-    {
-      id: 3,
-      service: 'Dog Walking',
-      description: 'I walk your dog.',
-      date: 'Friday 18 at 18:00',
-      address: 'Central Park',
-      message: 'Small dog, very friendly',
-      image: dogImg,
-      price: '6',
-      status: 'pending',
-    },
-    {
-      id: 4,
-      service: 'Computer Repair',
-      description: 'Fix your computer.',
-      date: 'Saturday 20 at 12:00',
-      address: 'Online',
-      message: 'Laptop not turning on',
-      image: computerImg,
-      price: '15',
-      status: 'pending',
-    },
-  ]);
-
+  const [requests, setRequests] = useState([]);
+  const [profile, setProfile] = useState({ name: '', role: 'USER' });
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
-
-  const [acceptForm, setAcceptForm] = useState({
-    clarification: '',
-  });
-
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [acceptForm, setAcceptForm] = useState({ clarification: '' });
   const [rejectReason, setRejectReason] = useState('');
+
+  const normalizeRequests = (items = []) =>
+    items.map((item) => ({
+      ...item,
+      image: getServiceImage(item.image_key),
+    }));
+
+  useEffect(() => {
+    const loadInbox = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
+
+        const [summaryData, inboxData] = await Promise.all([
+          getPortalSummary(),
+          getInbox(),
+        ]);
+
+        setProfile(summaryData);
+        setRequests(normalizeRequests(inboxData?.requests));
+      } catch (loadError) {
+        setError(loadError.message || 'Error loading inbox');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadInbox();
+  }, []);
 
   const openAcceptModal = (request) => {
     setSelectedRequest(request);
@@ -79,36 +64,38 @@ const Inbox = () => {
     setShowRejectModal(true);
   };
 
-  const handleAccept = () => {
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.id === selectedRequest.id
-          ? {
-              ...req,
-              status: 'accepted',
-              clarification: acceptForm.clarification,
-            }
-          : req
-      )
-    );
-    setShowAcceptModal(false);
-    setSelectedRequest(null);
+  const handleAccept = async () => {
+    if (!selectedRequest) return;
+
+    try {
+      setIsSaving(true);
+      setError('');
+      const inboxData = await acceptInboxRequest(selectedRequest.id, acceptForm.clarification);
+      setRequests(normalizeRequests(inboxData?.requests));
+      setShowAcceptModal(false);
+      setSelectedRequest(null);
+    } catch (saveError) {
+      setError(saveError.message || 'Error accepting request');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleReject = () => {
-    setRequests((prev) =>
-      prev.map((req) =>
-        req.id === selectedRequest.id
-          ? {
-              ...req,
-              status: 'rejected',
-              rejectReason: rejectReason,
-            }
-          : req
-      )
-    );
-    setShowRejectModal(false);
-    setSelectedRequest(null);
+  const handleReject = async () => {
+    if (!selectedRequest) return;
+
+    try {
+      setIsSaving(true);
+      setError('');
+      const inboxData = await rejectInboxRequest(selectedRequest.id, rejectReason);
+      setRequests(normalizeRequests(inboxData?.requests));
+      setShowRejectModal(false);
+      setSelectedRequest(null);
+    } catch (saveError) {
+      setError(saveError.message || 'Error rejecting request');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const pendingRequests = requests.filter((req) => req.status === 'pending');
@@ -145,8 +132,8 @@ const Inbox = () => {
                 }}
               ></div>
 
-              <div className="fw-semibold">Antonia</div>
-              <div className="text-muted small">User</div>
+              <div className="fw-semibold">{profile.name || 'User'}</div>
+              <div className="text-muted small">{profile.role || 'USER'}</div>
             </div>
 
             <Nav className="flex-column">
@@ -190,8 +177,10 @@ const Inbox = () => {
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
             <h2 className="fw-bold mb-4">Received requests</h2>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {isLoading && <p className="text-muted">Loading requests...</p>}
 
-            {pendingRequests.length === 0 ? (
+            {!isLoading && pendingRequests.length === 0 ? (
               <div
                 className="bg-white shadow-sm p-4 mb-4"
                 style={{ borderRadius: '16px' }}
@@ -212,7 +201,7 @@ const Inbox = () => {
               </Row>
             )}
 
-            {processedRequests.length > 0 && (
+            {!isLoading && processedRequests.length > 0 && (
               <>
                 <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
 
@@ -228,6 +217,9 @@ const Inbox = () => {
                         }}
                       >
                         <h5 className="fw-bold mb-2">{request.service}</h5>
+                        <p className="mb-1 text-muted">
+                          <strong>From:</strong> {request.requester_name}
+                        </p>
                         <p className="mb-1">{request.description}</p>
                         <p className="mb-1 text-muted">
                           <strong>Request:</strong> {request.date}
@@ -245,9 +237,9 @@ const Inbox = () => {
                           </p>
                         )}
 
-                        {request.status === 'rejected' && request.rejectReason && (
+                        {request.status === 'rejected' && request.reject_reason && (
                           <p className="mb-1">
-                            <strong>Reject reason:</strong> {request.rejectReason}
+                            <strong>Reject reason:</strong> {request.reject_reason}
                           </p>
                         )}
 
@@ -265,66 +257,56 @@ const Inbox = () => {
       </Container>
 
       <Modal show={showAcceptModal} onHide={() => setShowAcceptModal(false)} centered>
-        <Modal.Body style={{ backgroundColor: '#dbe8f7', padding: '2rem' }}>
-          <h4 className="fw-bold mb-4">{selectedRequest?.service}</h4>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-4">Accept request</h4>
 
-          <p className="mb-1">{selectedRequest?.description}</p>
-          <p className="mb-1">
-            <strong>Request:</strong> {selectedRequest?.date}
-          </p>
-          <p className="mb-1">
-            <strong>Address:</strong> {selectedRequest?.address}
-          </p>
-          <p className="mb-3">
-            <strong>Message:</strong> {selectedRequest?.message}
-          </p>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Clarification</Form.Label>
+          <Form.Group className="mb-4">
+            <Form.Label>Clarification for the requester</Form.Label>
             <Form.Control
-              type="text"
+              as="textarea"
+              rows={3}
+              placeholder="Optional message"
               value={acceptForm.clarification}
-              onChange={(e) =>
-                setAcceptForm({ ...acceptForm, clarification: e.target.value })
-              }
+              onChange={(e) => setAcceptForm({ clarification: e.target.value })}
             />
           </Form.Group>
 
-          <div className="d-flex justify-content-end">
-            <Button variant="primary" onClick={handleAccept}>
-              Confirm
+          <div className="d-flex justify-content-end gap-2">
+            <Button variant="secondary" onClick={() => setShowAcceptModal(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleAccept} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Confirm'}
             </Button>
           </div>
         </Modal.Body>
       </Modal>
 
       <Modal show={showRejectModal} onHide={() => setShowRejectModal(false)} centered>
-        <Modal.Body style={{ backgroundColor: '#f8d7da', padding: '2rem' }}>
-          <h4 className="fw-bold mb-4">{selectedRequest?.service}</h4>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-4">Reject request</h4>
 
-          <p className="mb-1">{selectedRequest?.description}</p>
-          <p className="mb-1">
-            <strong>Request:</strong> {selectedRequest?.date}
-          </p>
-          <p className="mb-1">
-            <strong>Address:</strong> {selectedRequest?.address}
-          </p>
-          <p className="mb-3">
-            <strong>Message:</strong> {selectedRequest?.message}
-          </p>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Reject reason</Form.Label>
+          <Form.Group className="mb-4">
+            <Form.Label>Reason for rejection</Form.Label>
             <Form.Control
-              type="text"
+              as="textarea"
+              rows={3}
+              placeholder="Explain why you reject this request"
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
           </Form.Group>
 
-          <div className="d-flex justify-content-end">
-            <Button variant="danger" onClick={handleReject}>
-              Reject
+          <div className="d-flex justify-content-end gap-2">
+            <Button variant="secondary" onClick={() => setShowRejectModal(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleReject}
+              disabled={isSaving || !rejectReason.trim()}
+            >
+              {isSaving ? 'Saving...' : 'Reject'}
             </Button>
           </div>
         </Modal.Body>

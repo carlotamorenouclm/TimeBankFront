@@ -1,70 +1,41 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import ServiceCard from '../components/ServiceCard';
-
-import bici from '../assets/bike.jpg';
-import clean from '../assets/clean.jpg';
-import dog from '../assets/dog.jpg';
-import ordenador from '../assets/computer.avif';
-import ingles from '../assets/ingles.jpg';
-import mates from '../assets/mates.jpg';
+import { getServiceImage } from '../constants/serviceImages';
+import { getDashboardServices, getPortalSummary } from '../services/portal/PortalService';
 
 const DashboardUser = () => {
+  const [services, setServices] = useState([]);
+  const [profile, setProfile] = useState({ name: '', role: 'USER' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const services = [
-    {
-      title: "Bike Repair",
-      description: "We fix your bike.",
-      availability: "Mondays, Wednesdays and Fridays from 16:00",
-      extra: "Home service",
-      price: "10 coins",
-      image: bici
-    },
-    {
-      title: "English Lessons",
-      description: "Practice English with a native speaker.",
-      availability: "Weekdays from 18:00",
-      extra: "Online",
-      price: "8 coins",
-      image: ingles
-    },
-    {
-      title: "House Cleaning",
-      description: "I help you keep your house clean.",
-      availability: "Weekends",
-      extra: "At your place",
-      price: "12 coins",
-      image: clean
-    },
-    {
-      title: "Dog Walking",
-      description: "I take care of your dog.",
-      availability: "Every afternoon",
-      extra: "Outdoor service",
-      price: "6 coins",
-      image: dog
-    },
-    {
-      title: "Math Tutoring",
-      description: "Help with school math subjects.",
-      availability: "Evenings",
-      extra: "Online or in person",
-      price: "9 coins",
-      image: mates
-    },
-    {
-      title: "Computer Repair",
-      description: "Fix software and hardware issues.",
-      availability: "Flexible schedule",
-      extra: "Home service",
-      price: "15 coins",
-      image: ordenador
-    }
-  ];
+  useEffect(() => {
+    const loadDashboard = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
 
- return (
+        const [summaryData, dashboardData] = await Promise.all([
+          getPortalSummary(),
+          getDashboardServices(),
+        ]);
+
+        setProfile(summaryData);
+        setServices(dashboardData?.services || []);
+      } catch (loadError) {
+        setError(loadError.message || 'Error loading services');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadDashboard();
+  }, []);
+
+  return (
     <div
       style={{
         minHeight: '100vh',
@@ -77,7 +48,6 @@ const DashboardUser = () => {
 
       <Container fluid className="px-0">
         <Row className="g-0" style={{ minHeight: 'calc(100vh - 70px)' }}>
-          {/* SIDEBAR */}
           <Col
             xs={12}
             md={3}
@@ -97,8 +67,8 @@ const DashboardUser = () => {
                 }}
               ></div>
 
-              <div className="fw-semibold">Antonia</div>
-              <div className="text-muted small">User</div>
+              <div className="fw-semibold">{profile.name || 'User'}</div>
+              <div className="text-muted small">{profile.role || 'USER'}</div>
             </div>
 
             <Nav className="flex-column">
@@ -142,14 +112,25 @@ const DashboardUser = () => {
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
             <h2 className="fw-bold mb-4">Available Services</h2>
+            {isLoading && <p className="text-muted">Loading services...</p>}
+            {error && <div className="alert alert-danger">{error}</div>}
 
-            <Row className="g-4">
-              {services.map((service, index) => (
-                <Col xs={12} key={index}>
-                    <ServiceCard {...service} />
-                </Col>
-              ))}
-            </Row>
+            {!isLoading && !error && (
+              <Row className="g-4">
+                {services.map((service) => (
+                  <Col xs={12} key={service.id}>
+                    <ServiceCard
+                      title={service.title}
+                      description={service.description}
+                      availability={service.availability}
+                      extra={`${service.extra} · Provider: ${service.owner_name}`}
+                      price={`${service.price} coins`}
+                      image={getServiceImage(service.image_key)}
+                    />
+                  </Col>
+                ))}
+              </Row>
+            )}
           </Col>
         </Row>
       </Container>

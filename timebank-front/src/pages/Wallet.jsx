@@ -1,35 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Card, Button, Form, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import { getPortalSummary, getWallet, rechargeWallet } from '../services/portal/PortalService';
 
 const Wallet = () => {
-  const [balance, setBalance] = useState(42);
+  const [balance, setBalance] = useState(0);
+  const [status, setStatus] = useState('Active');
   const [showModal, setShowModal] = useState(false);
   const [amount, setAmount] = useState('');
-  const [recharges, setRecharges] = useState([
-    { id: 1, date: '2026-04-18', amount: '+20 coins' },
-    { id: 2, date: '2026-04-10', amount: '+15 coins' },
-    { id: 3, date: '2026-04-03', amount: '+10 coins' },
-  ]);
+  const [recharges, setRecharges] = useState([]);
+  const [profile, setProfile] = useState({ name: '', role: 'USER' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleRecharge = () => {
+  useEffect(() => {
+    const loadWallet = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
+
+        const [summaryData, walletData] = await Promise.all([
+          getPortalSummary(),
+          getWallet(),
+        ]);
+
+        setProfile(summaryData);
+        setBalance(walletData?.balance || 0);
+        setStatus(walletData?.status || 'Active');
+        setRecharges(walletData?.recharges || []);
+      } catch (loadError) {
+        setError(loadError.message || 'Error loading wallet');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadWallet();
+  }, []);
+
+  const handleRecharge = async () => {
     const numericAmount = Number(amount);
 
     if (!numericAmount || numericAmount <= 0) return;
 
-    setBalance((prev) => prev + numericAmount);
-    setRecharges((prev) => [
-      {
-        id: prev.length + 1,
-        date: new Date().toISOString().split('T')[0],
-        amount: `+${numericAmount} coins`,
-      },
-      ...prev,
-    ]);
-
-    setAmount('');
-    setShowModal(false);
+    try {
+      setIsSaving(true);
+      setError('');
+      const walletData = await rechargeWallet(numericAmount);
+      setBalance(walletData?.balance || 0);
+      setStatus(walletData?.status || 'Active');
+      setRecharges(walletData?.recharges || []);
+      setAmount('');
+      setShowModal(false);
+    } catch (saveError) {
+      setError(saveError.message || 'Error recharging wallet');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -63,8 +92,8 @@ const Wallet = () => {
                 }}
               ></div>
 
-              <div className="fw-semibold">Antonia</div>
-              <div className="text-muted small">User</div>
+              <div className="fw-semibold">{profile.name || 'User'}</div>
+              <div className="text-muted small">{profile.role || 'USER'}</div>
             </div>
 
             <Nav className="flex-column">
@@ -108,90 +137,114 @@ const Wallet = () => {
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
             <h2 className="fw-bold mb-4">Wallet</h2>
+            {error && <div className="alert alert-danger">{error}</div>}
+            {isLoading && <p className="text-muted">Loading wallet...</p>}
 
-            <Row className="g-4 mb-4">
-              <Col xs={12} lg={8}>
-                <Card
-                  className="border-0 shadow-sm"
-                  style={{
-                    borderRadius: '18px',
-                    background: 'linear-gradient(135deg, #0d6efd, #6ea8fe)',
-                    color: 'white',
-                  }}
-                >
-                  <Card.Body className="p-4">
-                    <p className="mb-2" style={{ opacity: 0.9 }}>
-                      Current balance
-                    </p>
-                    <h1 className="fw-bold mb-3">{balance} coins</h1>
-                    <p className="mb-4" style={{ opacity: 0.9 }}>
-                      Use your time credits to request services from other users.
-                    </p>
-                    <Button variant="light" onClick={() => setShowModal(true)}>
-                      Recharge balance
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
+            {!isLoading && (
+              <>
+                <Row className="g-4 mb-4">
+                  <Col xs={12} lg={8}>
+                    <Card
+                      className="border-0 shadow-sm"
+                      style={{
+                        borderRadius: '18px',
+                        background: 'linear-gradient(135deg, #0d6efd, #6ea8fe)',
+                        color: 'white',
+                      }}
+                    >
+                      <Card.Body className="p-4">
+                        <p className="mb-2" style={{ opacity: 0.9 }}>
+                          Current balance
+                        </p>
+                        <h1 className="fw-bold mb-3">{balance} coins</h1>
+                        <p className="mb-4" style={{ opacity: 0.9 }}>
+                          Use your time credits to request services from other users.
+                        </p>
+                        <Button variant="light" onClick={() => setShowModal(true)}>
+                          Recharge balance
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
 
-              <Col xs={12} lg={4}>
-                <Card
-                  className="border-0 shadow-sm h-100"
-                  style={{ borderRadius: '18px' }}
-                >
-                  <Card.Body className="p-4">
-                    <h5 className="fw-bold mb-3">Quick amounts</h5>
+                  <Col xs={12} lg={4}>
+                    <Card
+                      className="border-0 shadow-sm h-100"
+                      style={{ borderRadius: '18px' }}
+                    >
+                      <Card.Body className="p-4">
+                        <h5 className="fw-bold mb-3">Quick amounts</h5>
 
-                    <div className="d-grid gap-2">
-                      <Button variant="outline-primary" onClick={() => { setAmount('5'); setShowModal(true); }}>
-                        +5 coins
-                      </Button>
-                      <Button variant="outline-primary" onClick={() => { setAmount('10'); setShowModal(true); }}>
-                        +10 coins
-                      </Button>
-                      <Button variant="outline-primary" onClick={() => { setAmount('20'); setShowModal(true); }}>
-                        +20 coins
-                      </Button>
-                    </div>
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
-
-            <Row className="g-4">
-              <Col xs={12} lg={6}>
-                <Card className="border-0 shadow-sm" style={{ borderRadius: '18px' }}>
-                  <Card.Body className="p-4">
-                    <h5 className="fw-bold mb-3">Wallet summary</h5>
-                    <p className="mb-2"><strong>Available credits:</strong> {balance}</p>
-                    <p className="mb-2"><strong>Total recharges:</strong> {recharges.length}</p>
-                    <p className="mb-0"><strong>Status:</strong> Active</p>
-                  </Card.Body>
-                </Card>
-              </Col>
-
-              <Col xs={12} lg={6}>
-                <Card className="border-0 shadow-sm" style={{ borderRadius: '18px' }}>
-                  <Card.Body className="p-4">
-                    <h5 className="fw-bold mb-3">Last recharges</h5>
-
-                    {recharges.length === 0 ? (
-                      <p className="text-muted mb-0">No recharges yet.</p>
-                    ) : (
-                      recharges.map((item) => (
-                        <div
-                          key={item.id}
-                          className="d-flex justify-content-between align-items-center py-2 border-bottom"
-                        >
-                          <span>{item.date}</span>
-                          <span className="fw-bold text-success">{item.amount}</span>
+                        <div className="d-grid gap-2">
+                          <Button
+                            variant="outline-primary"
+                            onClick={() => {
+                              setAmount('5');
+                              setShowModal(true);
+                            }}
+                          >
+                            +5 coins
+                          </Button>
+                          <Button
+                            variant="outline-primary"
+                            onClick={() => {
+                              setAmount('10');
+                              setShowModal(true);
+                            }}
+                          >
+                            +10 coins
+                          </Button>
+                          <Button
+                            variant="outline-primary"
+                            onClick={() => {
+                              setAmount('20');
+                              setShowModal(true);
+                            }}
+                          >
+                            +20 coins
+                          </Button>
                         </div>
-                      ))
-                    )}
-                  </Card.Body>
-                </Card>
-              </Col>
-            </Row>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+
+                <Row className="g-4">
+                  <Col xs={12} lg={6}>
+                    <Card className="border-0 shadow-sm" style={{ borderRadius: '18px' }}>
+                      <Card.Body className="p-4">
+                        <h5 className="fw-bold mb-3">Wallet summary</h5>
+                        <p className="mb-2"><strong>Available credits:</strong> {balance}</p>
+                        <p className="mb-2"><strong>Total recharges:</strong> {recharges.length}</p>
+                        <p className="mb-0"><strong>Status:</strong> {status}</p>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+
+                  <Col xs={12} lg={6}>
+                    <Card className="border-0 shadow-sm" style={{ borderRadius: '18px' }}>
+                      <Card.Body className="p-4">
+                        <h5 className="fw-bold mb-3">Last recharges</h5>
+
+                        {recharges.length === 0 ? (
+                          <p className="text-muted mb-0">No recharges yet.</p>
+                        ) : (
+                          recharges.map((item) => (
+                            <div
+                              key={item.id}
+                              className="d-flex justify-content-between align-items-center py-2 border-bottom"
+                            >
+                              <span>{item.date}</span>
+                              <span className="fw-bold text-success">+{item.amount} coins</span>
+                            </div>
+                          ))
+                        )}
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                </Row>
+              </>
+            )}
           </Col>
         </Row>
       </Container>
@@ -215,8 +268,8 @@ const Wallet = () => {
             <Button variant="secondary" onClick={() => setShowModal(false)}>
               Cancel
             </Button>
-            <Button variant="primary" onClick={handleRecharge}>
-              Confirm
+            <Button variant="primary" onClick={handleRecharge} disabled={isSaving}>
+              {isSaving ? 'Saving...' : 'Confirm'}
             </Button>
           </div>
         </Modal.Body>

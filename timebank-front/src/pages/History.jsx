@@ -1,68 +1,39 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import TransactionCard from '../components/TransactionCard';
+import { getHistory, getPortalSummary } from '../services/portal/PortalService';
 
 const History = () => {
-  const transactions = [
-    {
-      id: 1,
-      type: 'Purchase',
-      service: 'Bike Repair',
-      otherUser: 'Carlos Gómez',
-      date: '2026-04-12',
-      amount: '-10 coins',
-      status: 'Completed',
-    },
-    {
-      id: 2,
-      type: 'Sale',
-      service: 'English Lessons',
-      otherUser: 'Laura Pérez',
-      date: '2026-04-10',
-      amount: '+8 coins',
-      status: 'Completed',
-    },
-    {
-      id: 3,
-      type: 'Purchase',
-      service: 'House Cleaning',
-      otherUser: 'Marina López',
-      date: '2026-04-08',
-      amount: '-12 coins',
-      status: 'Pending',
-    },
-    {
-      id: 4,
-      type: 'Sale',
-      service: 'Math Tutoring',
-      otherUser: 'David Ruiz',
-      date: '2026-04-05',
-      amount: '+9 coins',
-      status: 'Completed',
-    },
-    {
-      id: 5,
-      type: 'Purchase',
-      service: 'Dog Walking',
-      otherUser: 'Lucía Martín',
-      date: '2026-04-03',
-      amount: '-6 coins',
-      status: 'Cancelled',
-    },
-    {
-      id: 6,
-      type: 'Sale',
-      service: 'Computer Repair',
-      otherUser: 'Sergio Díaz',
-      date: '2026-04-01',
-      amount: '+15 coins',
-      status: 'Completed',
-    },
-  ];
-
+  const [transactions, setTransactions] = useState([]);
   const [filter, setFilter] = useState('all');
+  const [profile, setProfile] = useState({ name: '', role: 'USER' });
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const loadHistory = async () => {
+      try {
+        setIsLoading(true);
+        setError('');
+
+        const [summaryData, historyData] = await Promise.all([
+          getPortalSummary(),
+          getHistory(),
+        ]);
+
+        setProfile(summaryData);
+        setTransactions(historyData?.transactions || []);
+      } catch (loadError) {
+        setError(loadError.message || 'Error loading history');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadHistory();
+  }, []);
 
   const filteredTransactions = transactions.filter((transaction) => {
     if (filter === 'purchases') return transaction.type === 'Purchase';
@@ -83,7 +54,6 @@ const History = () => {
 
       <Container fluid className="px-0">
         <Row className="g-0" style={{ minHeight: 'calc(100vh - 70px)' }}>
-          {/* SIDEBAR */}
           <Col
             xs={12}
             md={3}
@@ -103,8 +73,8 @@ const History = () => {
                 }}
               ></div>
 
-              <div className="fw-semibold">Antonia</div>
-              <div className="text-muted small">User</div>
+              <div className="fw-semibold">{profile.name || 'User'}</div>
+              <div className="text-muted small">{profile.role || 'USER'}</div>
             </div>
 
             <Nav className="flex-column">
@@ -146,7 +116,6 @@ const History = () => {
             </Nav>
           </Col>
 
-          {/* MAIN CONTENT */}
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
             <div className="mb-4">
               <div className="d-flex gap-3">
@@ -173,27 +142,32 @@ const History = () => {
               </div>
             </div>
 
-            <Row className="g-4">
-              {filteredTransactions.length > 0 ? (
-                filteredTransactions.map((transaction) => (
-                  <Col xs={12} md={6} lg={4} key={transaction.id}>
-                    <TransactionCard transaction={transaction} />
+            {isLoading && <p className="text-muted">Loading history...</p>}
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            {!isLoading && !error && (
+              <Row className="g-4">
+                {filteredTransactions.length > 0 ? (
+                  filteredTransactions.map((transaction) => (
+                    <Col xs={12} md={6} lg={4} key={transaction.id}>
+                      <TransactionCard transaction={transaction} />
+                    </Col>
+                  ))
+                ) : (
+                  <Col xs={12}>
+                    <div
+                      className="bg-white shadow-sm text-center p-5"
+                      style={{ borderRadius: '16px' }}
+                    >
+                      <h5 className="fw-bold mb-2">No hay transacciones</h5>
+                      <p className="text-muted mb-0">
+                        No se encontraron movimientos para este filtro.
+                      </p>
+                    </div>
                   </Col>
-                ))
-              ) : (
-                <Col xs={12}>
-                  <div
-                    className="bg-white shadow-sm text-center p-5"
-                    style={{ borderRadius: '16px' }}
-                  >
-                    <h5 className="fw-bold mb-2">No hay transacciones</h5>
-                    <p className="text-muted mb-0">
-                      No se encontraron movimientos para este filtro.
-                    </p>
-                  </div>
-                </Col>
-              )}
-            </Row>
+                )}
+              </Row>
+            )}
           </Col>
         </Row>
       </Container>

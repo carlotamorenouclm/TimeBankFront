@@ -17,12 +17,11 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/history" element={<History />} />
-      <Route path="/inbox" element={<Inbox />} />
-      <Route path="/wallet" element={<Wallet />} />
       <Route element={<ProtectedRoute canAccess={isAuthenticated} />}>
         <Route path="/dashboarduser" element={<DashboardUser />} />
+        <Route path="/history" element={<History />} />
+        <Route path="/inbox" element={<Inbox />} />
+        <Route path="/wallet" element={<Wallet />} />
       </Route>
       <Route element={<ProtectedRoute canAccess={isAuthenticated} redirectPath="/dashboarduser" />}>
         <Route path="/dashboardadmin" element={<DashboardAdmin />} />

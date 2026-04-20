@@ -2,6 +2,8 @@ import React from 'react';
 import { Card, Badge } from 'react-bootstrap';
 
 const TransactionCard = ({ transaction }) => {
+  const otherUser = transaction.otherUser || transaction.other_user || '-';
+
   const getStatusBadge = (status) => {
     switch (status) {
       case 'Completed':
@@ -18,6 +20,8 @@ const TransactionCard = ({ transaction }) => {
         return <Badge bg="secondary">{status}</Badge>;
     }
   };
+
+  const amountLabel = `${transaction.amount > 0 ? '+' : ''}${transaction.amount} coins`;
 
   return (
     <Card
@@ -40,7 +44,7 @@ const TransactionCard = ({ transaction }) => {
             </p>
 
             <p className="mb-1 text-muted">
-              <strong>User:</strong> {transaction.otherUser}
+              <strong>User:</strong> {otherUser}
             </p>
 
             <p className="mb-3 text-muted">
@@ -51,10 +55,10 @@ const TransactionCard = ({ transaction }) => {
           <div
             className="fw-bold fs-5"
             style={{
-              color: transaction.amount.startsWith('+') ? '#198754' : '#dc3545',
+              color: transaction.amount >= 0 ? '#198754' : '#dc3545',
             }}
           >
-            {transaction.amount}
+            {amountLabel}
           </div>
         </div>
       </Card.Body>
