@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import '../App.css';
 import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
-import { checkIfAdmin, loginUser } from '../services/auth/LoginService';
+import { checkIfAdmin, loginUser } from '../services/admin/UsersService';
 
 const Login = () => {
   const navigate = useNavigate();

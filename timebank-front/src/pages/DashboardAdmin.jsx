@@ -10,9 +10,7 @@ const DashboardAdmin = () => {
 	const [users, setUsers] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState('');
-
-	useEffect(() => {
-		const loadDashboardData = async () => {
+	const loadDashboardData = async () => {
 			setIsLoading(true);
 			setErrorMessage('');
 
@@ -32,6 +30,7 @@ const DashboardAdmin = () => {
 			}
 		};
 
+	useEffect(() => {
 		loadDashboardData();
 	}, []);
 
@@ -48,8 +47,8 @@ const DashboardAdmin = () => {
 			<Container className="py-5">
 				<div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
 					<div>
-						<h1 className="fw-bold mb-2">Panel de Administracion</h1>
-						<p className="text-muted mb-0">Gestiona y revisa las cuentas del sistema.</p>
+						<h1 className="fw-bold mb-2">Administration panel</h1>
+						<p className="text-muted mb-0">Manage and review system accounts.</p>
 					</div>
 					<div className="d-flex gap-2">
 						<Button

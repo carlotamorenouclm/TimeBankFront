@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import logoTimeBank from '../assets/logoTimeBank.PNG';
 import ButtonPill from './ButtonPill';
 import { isAuthenticated } from '../utils/AuthHelpers';
-import { checkIfAdmin } from '../services/auth/LoginService';
+import { checkIfAdmin } from '../services/admin/UsersService';
 
 const NavbarCustom = () => {
   const navigate = useNavigate();

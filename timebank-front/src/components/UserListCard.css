@@ -7,3 +7,10 @@
   transform: translateY(-4px);
   box-shadow: 0 0.75rem 1.25rem rgba(2, 58, 188, 0.15) !important;
 }
+
+.edit-user-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-weight: 600;
+}

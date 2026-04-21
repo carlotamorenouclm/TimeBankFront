@@ -1,5 +1,6 @@
-const API_URL = import.meta.env.VITE_API_URL;
 import { UserData } from '../../models/UserModel';
+import { API_URL } from '../../constants/paths';
+
 
 export const registerUser = async ({ firstName, lastName, email, password }) => {
   try {
