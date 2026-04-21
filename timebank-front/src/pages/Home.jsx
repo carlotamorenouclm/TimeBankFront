@@ -25,7 +25,7 @@ const HomePage = () => {
               <p className="lead mb-5 text-muted">
                 Exchange your skills and time with others in your community. Join TimeBank and start building a network of mutual support today!</p>
               <div className="d-grid d-md-flex justify-content-md-start gap-3">
-                <ButtonPill size="lg" className="px-5 py-3 shadow">Start now</ButtonPill>
+                <ButtonPill as={Link} to="/signup" size="lg" className="px-5 py-3 shadow">Start now</ButtonPill>
                 <ButtonPill size="lg" className="px-5 py-3 border" bg="white" font="black">Learn more</ButtonPill>
               </div>
             </Col>
