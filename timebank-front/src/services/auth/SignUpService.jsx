@@ -1,5 +1,7 @@
-const API_URL = import.meta.env.VITE_API_URL;
 import { UserData } from '../../models/UserModel';
+import { API_URL } from '../../constants/API_paths';
+import { parseApiError } from '../../utils/UserHelpers';
+
 
 export const registerUser = async ({ firstName, lastName, email, password }) => {
   try {
@@ -12,9 +14,12 @@ export const registerUser = async ({ firstName, lastName, email, password }) => 
     const response = await fetch(`${API_URL}/users/signup`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},body: JSON.stringify(userData)});
+      
+    const responseData = await response.json().catch(() => ({}));
+
 
     if (!response.ok) {
-      throw new Error(`Registration failed (status ${response.status})`);
+      throw new Error(parseApiError(responseData, response.status) || `Registration failed (status ${response.status} )`);
     }
     return await response.json();
 
