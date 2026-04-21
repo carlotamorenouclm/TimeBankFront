@@ -1,4 +1,5 @@
-import { API_URL } from '../../constants/paths';
+import { API_URL } from '../../constants/API_paths';
+import { parseApiError } from '../../utils/UserHelpers';
 
 export const loginUser = async ({ email, password }) => {
 	try {
@@ -21,8 +22,7 @@ export const loginUser = async ({ email, password }) => {
 		const responseData = await response.json().catch(() => ({}));
 
 		if (!response.ok) {
-			const error = responseData?.detail;
-			throw new Error(error || `Login failed (status ${response.status})`);
+			throw new Error(parseApiError(responseData, response.status) || `Login failed (status ${response.status})`);
 		}
 
 		return responseData;

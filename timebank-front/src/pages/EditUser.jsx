@@ -2,7 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
-import { updateRoleTimeTokens } from '../services/admin/UsersService';
+import { updateRoleTimeTokens, updateUserInfo } from '../services/admin/UsersService';
+import {
+  normalizeRole,
+  normalizeText,
+  normalizeTimeTokens,
+  validateEditUserInput
+} from '../utils/Normalized';
 
 const EditUser = () => {
   const navigate = useNavigate();
@@ -10,8 +16,10 @@ const EditUser = () => {
   const { userId } = useParams();
 
   const selectedUser = useMemo(() => location.state?.user || null, [location.state]);
-  const initialRole = useMemo(() => location.state?.role || 'User', [location.state]);
-  const initialTimeTokens = useMemo(() => Number(selectedUser?.timeTokens ?? 0), [selectedUser]);
+  const initialRole = useMemo(() => normalizeRole(location.state?.role || 'User'), [location.state]);
+  const initialTimeTokens = useMemo(() => normalizeTimeTokens(selectedUser?.timeTokens ?? 0), [selectedUser]);
+  const initialFirstName = useMemo(() => normalizeText(selectedUser?.firstName), [selectedUser]);
+  const initialLastName = useMemo(() => normalizeText(selectedUser?.lastName), [selectedUser]);
 
   const [formData, setFormData] = useState({
     firstName: selectedUser?.firstName || '',
@@ -20,6 +28,7 @@ const EditUser = () => {
     role: initialRole,
     timeTokens: initialTimeTokens
   });
+  
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -29,28 +38,32 @@ const EditUser = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const normalizeRole = (roleValue) => String(roleValue || '').trim().toUpperCase();
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatusMessage('');
     setErrorMessage('');
 
-    const normalizedInitialRole = normalizeRole(initialRole);
     const normalizedCurrentRole = normalizeRole(formData.role);
-    const parsedTokens = Number(formData.timeTokens);
-    const normalizedCurrentTokens = Number.isFinite(parsedTokens) ? Math.floor(parsedTokens) : 0;
+    const normalizedCurrentFirstName = normalizeText(formData.firstName);
+    const normalizedCurrentLastName = normalizeText(formData.lastName);
+    const normalizedCurrentTokens = normalizeTimeTokens(formData.timeTokens);
 
-    if (normalizedCurrentTokens < 0) {
-      setErrorMessage('Time tokens no puede ser negativo.');
+    const validationError = validateEditUserInput({
+      firstName: normalizedCurrentFirstName, lastName: normalizedCurrentLastName, timeTokens: normalizedCurrentTokens});
+
+    const roleChanged = normalizedCurrentRole !== initialRole;
+    const tokensChanged = normalizedCurrentTokens !== initialTimeTokens;
+    const firstNameChanged = normalizedCurrentFirstName !== initialFirstName;
+    const lastNameChanged = normalizedCurrentLastName !== initialLastName;
+    const userInfoChanged = firstNameChanged || lastNameChanged;
+
+    if (validationError) {
+      setErrorMessage(validationError);
       return;
     }
 
-    const roleChanged = normalizedCurrentRole !== normalizedInitialRole;
-    const tokensChanged = normalizedCurrentTokens !== initialTimeTokens;
-
-    if (!roleChanged && !tokensChanged) {
-      setStatusMessage('No hubo cambios en rol ni en time tokens.');
+    if (!roleChanged && !tokensChanged && !userInfoChanged) {
+      setStatusMessage('No hubo cambios para guardar.');
       return;
     }
 
@@ -58,14 +71,25 @@ const EditUser = () => {
       setIsSaving(true);
       const token = localStorage.getItem('access_token');
 
-      await updateRoleTimeTokens({
-        userId,
-        newRole: normalizedCurrentRole,
-        newTimeTokens: normalizedCurrentTokens,
-        accessToken: token
-      });
+      if (userInfoChanged) {
+        await updateUserInfo({
+          userId,
+          firstName: normalizedCurrentFirstName,
+          lastName: normalizedCurrentLastName,
+          accessToken: token
+        });
+      }
 
-      setStatusMessage('Rol o time tokens actualizado correctamente.');
+      if (roleChanged || tokensChanged) {
+        await updateRoleTimeTokens({
+          userId,
+          newRole: normalizedCurrentRole,
+          newTimeTokens: normalizedCurrentTokens,
+          accessToken: token
+        });
+      }
+
+      setStatusMessage('Cambios guardados correctamente.');
     } catch (error) {
       setErrorMessage(error.message || 'No se pudo actualizar el usuario.');
     } finally {

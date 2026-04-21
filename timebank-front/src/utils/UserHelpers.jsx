@@ -43,3 +43,20 @@ export const validateApiAndAccessToken = (apiUrl, accessToken) => {
     throw new Error('Missing access token');
   }
 };
+
+export const parseApiError = (responseData, status) => {
+  const detail = responseData?.detail;
+
+  if (Array.isArray(detail)) {
+    const formatted = detail
+      .map((item) => `${item?.loc?.join('.') || 'field'}: ${item?.msg || 'invalid value'}`)
+      .join(' | ');
+    return formatted || `Request failed (status ${status})`;
+  }
+
+  if (typeof detail === 'string' && detail.trim()) {
+    return detail;
+  }
+
+  return `Request failed (status ${status})`;
+};

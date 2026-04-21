@@ -1,6 +1,13 @@
-import { API_URL, USERS_PATH, ADMINS_PATH, UPDATE_ROLE_TIME_TOKENS_PATH } from '../../constants/paths';
 import {
-  extractArrayPayload, normalizeUser, validateApiAndAccessToken} from '../../utils/UserHelpers';
+  API_URL,
+  USERS_PATH,
+  ADMINS_PATH,
+  UPDATE_ROLE_TIME_TOKENS_PATH,
+  UPDATE_USER_INFO_PATH
+} from '../../constants/API_paths';
+import {
+  extractArrayPayload, normalizeUser, validateApiAndAccessToken, parseApiError} from '../../utils/UserHelpers';
+
 
 const fetchUsersFromPath = async (path, accessToken) => {
   validateApiAndAccessToken(API_URL, accessToken);
@@ -53,10 +60,9 @@ export const checkIfAdmin = async (accessToken) => {
 
 		const responseData = await response.json().catch(() => null);
 
-		if (!response.ok) {
-			const error = responseData?.detail;
-			throw new Error(error || `Admin validation failed (status ${response.status})`);
-		}
+		  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
+  }
 
 		return Boolean(responseData);
 	} catch (error) {
@@ -68,26 +74,49 @@ export const checkIfAdmin = async (accessToken) => {
 export const updateRoleTimeTokens = async ({ userId, newRole, newTimeTokens, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
-  const params = new URLSearchParams({
-    new_role: newRole,
-    new_time_tokens: String(newTimeTokens)
-  });
-
   const response = await fetch(
-    `${API_URL}${ADMINS_PATH}${UPDATE_ROLE_TIME_TOKENS_PATH}/${userId}?${params.toString()}`,
+    `${API_URL}${ADMINS_PATH}${UPDATE_ROLE_TIME_TOKENS_PATH}/${userId}`,
     {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${accessToken}`
-      }
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        new_role: newRole,
+        new_time_tokens: Number(newTimeTokens)
+      })
     }
   );
 
   const responseData = await response.json().catch(() => null);
 
   if (!response.ok) {
-    const error = responseData?.detail;
-    throw new Error(error || `Request failed (status ${response.status})`);
+    throw new Error(parseApiError(responseData, response.status));
+  }
+
+  return true;
+};
+
+export const updateUserInfo = async ({ userId, firstName, lastName, accessToken }) => {
+  validateApiAndAccessToken(API_URL, accessToken);
+
+  const response = await fetch(`${API_URL}${USERS_PATH}${UPDATE_USER_INFO_PATH}/${userId}`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      name: firstName,
+      surname: lastName
+    })
+  });
+
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
   }
 
   return true;
