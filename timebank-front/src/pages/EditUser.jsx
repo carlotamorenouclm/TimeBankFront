@@ -32,6 +32,8 @@ const EditUser = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const hasError = Boolean(errorMessage);
+  const hasSuccess = Boolean(statusMessage) && !hasError;
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -103,7 +105,17 @@ const EditUser = () => {
       <Container className="py-5">
         <Row className="justify-content-center">
           <Col md={10} lg={7}>
-            <Card className="border-0 shadow-sm">
+            <Card
+              className="border-0"
+              style={{
+                transition: 'box-shadow 0.25s ease',
+                boxShadow: hasError
+                  ? '0 0 0 0.2rem rgba(220, 53, 69, 0.25), 0 0.75rem 1.25rem rgba(220, 53, 69, 0.2)'
+                  : hasSuccess
+                    ? '0 0 0 0.2rem rgba(25, 135, 84, 0.25), 0 0.75rem 1.25rem rgba(25, 135, 84, 0.2)'
+                    : '0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)'
+              }}
+            >
               <Card.Body className="p-4 p-md-5">
                 <h1 className="fw-bold mb-2">Editar usuario</h1>
                 <p className="text-muted mb-4">
@@ -111,8 +123,6 @@ const EditUser = () => {
                 </p>
 
                 <Form onSubmit={handleSubmit}>
-                  {statusMessage && <p className="text-success">{statusMessage}</p>}
-                  {errorMessage && <p className="text-danger">{errorMessage}</p>}
 
                   <Form.Group className="mb-3" controlId="firstName">
                     <Form.Label>Nombre</Form.Label>
@@ -151,8 +161,8 @@ const EditUser = () => {
                         value={formData.role}
                         onChange={handleChange}
                       >
-                        <option value="Admin">Admin</option>
-                        <option value="User">User</option>
+                        <option value="ADMIN">Admin</option>
+                        <option value="USER">User</option>
                       </Form.Select>
                   </Form.Group>
 
@@ -168,13 +178,20 @@ const EditUser = () => {
                     />
                   </Form.Group>
 
-                  <div className="d-flex flex-wrap gap-2">
-                    <Button type="submit" variant="primary" disabled={isSaving}>
-                      {isSaving ? 'Guardando...' : 'Guardar cambios'}
-                    </Button>
-                    <Button type="button" variant="outline-secondary" onClick={() => navigate('/dashboardadmin')}>
-                      Volver al panel
-                    </Button>
+                  <div className="d-flex flex-column gap-2">
+                      <div className="d-flex flex-column">
+                        {statusMessage && <span className="text-success">{statusMessage}</span>}
+                        {errorMessage && <span className="text-danger">{errorMessage}</span>}
+                      </div>
+
+                    <div className="d-flex flex-wrap gap-2">
+                      <Button type="submit" variant="primary" disabled={isSaving}>
+                        {isSaving ? 'Keeping...' : 'Keep changes'}
+                      </Button>
+                      <Button type="button" variant="outline-secondary" onClick={() => navigate('/dashboardadmin')}>
+                        Go back
+                      </Button>
+                    </div>
                   </div>
                 </Form>
               </Card.Body>
