@@ -27,6 +27,11 @@ const initialServiceForm = {
   title: '',
   description: '',
   availability: '',
+  homeService: true,
+  street: '',
+  streetNumber: '',
+  floor: '',
+  door: '',
   extra: '',
   price: '5',
   imageKey: 'computer',
@@ -87,8 +92,19 @@ const DashboardUser = () => {
   };
 
   const handleServiceFormChange = (event) => {
-    const { name, value } = event.target;
-    setServiceForm((prev) => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = event.target;
+    const nextValue = type === 'checkbox' ? checked : value;
+
+    setServiceForm((prev) => {
+      const nextForm = { ...prev, [name]: nextValue };
+      if (name === 'homeService' && checked) {
+        nextForm.street = '';
+        nextForm.streetNumber = '';
+        nextForm.floor = '';
+        nextForm.door = '';
+      }
+      return nextForm;
+    });
   };
 
   const openPublishModal = () => {
@@ -107,7 +123,15 @@ const DashboardUser = () => {
 
   const handleContinueToPayment = () => {
     // Keep the payment modal closed until the required fields are filled in.
-    if (!requestForm.scheduledAt || !requestForm.street || !requestForm.streetNumber) {
+    if (!requestForm.scheduledAt) {
+      setError('Please fill the date before continuing.');
+      return;
+    }
+
+    if (
+      selectedService?.home_service &&
+      (!requestForm.street || !requestForm.streetNumber)
+    ) {
       setError('Please fill date, street and number before continuing.');
       return;
     }
@@ -126,10 +150,10 @@ const DashboardUser = () => {
 
       const response = await createServiceRequest(selectedService.id, {
         scheduled_at: requestForm.scheduledAt,
-        street: requestForm.street,
-        street_number: requestForm.streetNumber,
-        floor: requestForm.floor || null,
-        door: requestForm.door || null,
+        street: selectedService.home_service ? requestForm.street : selectedService.address,
+        street_number: selectedService.home_service ? requestForm.streetNumber : '-',
+        floor: selectedService.home_service ? requestForm.floor || null : null,
+        door: selectedService.home_service ? requestForm.door || null : null,
         message: requestForm.message || null,
       });
 
@@ -170,6 +194,11 @@ const DashboardUser = () => {
       return;
     }
 
+    if (!serviceForm.homeService && (!serviceForm.street || !serviceForm.streetNumber)) {
+      setError('Please complete the address when the service is not at home.');
+      return;
+    }
+
     try {
       setIsSaving(true);
       setError('');
@@ -178,6 +207,11 @@ const DashboardUser = () => {
         title: serviceForm.title,
         description: serviceForm.description,
         availability: serviceForm.availability,
+        home_service: serviceForm.homeService,
+        street: serviceForm.homeService ? null : serviceForm.street,
+        street_number: serviceForm.homeService ? null : serviceForm.streetNumber,
+        floor: serviceForm.homeService ? null : serviceForm.floor || null,
+        door: serviceForm.homeService ? null : serviceForm.door || null,
         extra: serviceForm.extra || null,
         price: Number(serviceForm.price),
         image_key: serviceForm.imageKey,
@@ -337,7 +371,16 @@ const DashboardUser = () => {
                         title={service.title}
                         description={service.description}
                         availability={service.availability}
-                        extra={`${service.extra} · Provider: ${service.owner_name}`}
+                        location={
+                          service.home_service
+                            ? 'Home service'
+                            : service.address
+                              ? `Address: ${service.address}`
+                              : 'Address pending'
+                        }
+                        extra={[service.extra, `Provider: ${service.owner_name}`]
+                          .filter(Boolean)
+                          .join(' · ')}
                         price={`${service.price} coins`}
                         image={getServiceImage(service.image_key)}
                         actionLabel={activeTab === 'buy' ? 'Request' : 'Delete'}
@@ -382,48 +425,60 @@ const DashboardUser = () => {
             />
           </Form.Group>
 
-          <Form.Group className="mb-3">
-            <Form.Label>Street</Form.Label>
-            <Form.Control
-              name="street"
-              value={requestForm.street}
-              onChange={handleRequestFormChange}
-              placeholder="Main Street"
-            />
-          </Form.Group>
+          {selectedService?.home_service ? (
+            <>
+              <Form.Group className="mb-3">
+                <Form.Label>Street</Form.Label>
+                <Form.Control
+                  name="street"
+                  value={requestForm.street}
+                  onChange={handleRequestFormChange}
+                  placeholder="Main Street"
+                />
+              </Form.Group>
 
-          <Row className="g-3 mb-3">
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>No.</Form.Label>
-                <Form.Control
-                  name="streetNumber"
-                  value={requestForm.streetNumber}
-                  onChange={handleRequestFormChange}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>Floor</Form.Label>
-                <Form.Control
-                  name="floor"
-                  value={requestForm.floor}
-                  onChange={handleRequestFormChange}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group>
-                <Form.Label>Door</Form.Label>
-                <Form.Control
-                  name="door"
-                  value={requestForm.door}
-                  onChange={handleRequestFormChange}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
+              <Row className="g-3 mb-3">
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label>No.</Form.Label>
+                    <Form.Control
+                      name="streetNumber"
+                      value={requestForm.streetNumber}
+                      onChange={handleRequestFormChange}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label>Floor</Form.Label>
+                    <Form.Control
+                      name="floor"
+                      value={requestForm.floor}
+                      onChange={handleRequestFormChange}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label>Door</Form.Label>
+                    <Form.Control
+                      name="door"
+                      value={requestForm.door}
+                      onChange={handleRequestFormChange}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+            </>
+          ) : (
+            <Form.Group className="mb-3">
+              <Form.Label>Service address</Form.Label>
+              <Form.Control
+                value={selectedService?.address || 'Address not available'}
+                readOnly
+              />
+            </Form.Group>
+          )}
 
           <Form.Group className="mb-4">
             <Form.Label>Additional message</Form.Label>
@@ -486,6 +541,93 @@ const DashboardUser = () => {
               placeholder="Weekdays after 18:00"
             />
           </Form.Group>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Home service?</Form.Label>
+            <div className="d-flex gap-4">
+              <Form.Check
+                inline
+                type="radio"
+                id="service-home-yes"
+                label="Yes"
+                name="homeService"
+                checked={serviceForm.homeService}
+                onChange={() =>
+                  setServiceForm((prev) => ({
+                    ...prev,
+                    homeService: true,
+                    street: '',
+                    streetNumber: '',
+                    floor: '',
+                    door: '',
+                  }))
+                }
+              />
+              <Form.Check
+                inline
+                type="radio"
+                id="service-home-no"
+                label="No"
+                name="homeService"
+                checked={!serviceForm.homeService}
+                onChange={() =>
+                  setServiceForm((prev) => ({
+                    ...prev,
+                    homeService: false,
+                  }))
+                }
+              />
+            </div>
+          </Form.Group>
+
+          {!serviceForm.homeService && (
+            <Row className="g-3 mb-3">
+              <Col md={12}>
+                <Form.Group>
+                  <Form.Label>Street</Form.Label>
+                  <Form.Control
+                    name="street"
+                    value={serviceForm.street}
+                    onChange={handleServiceFormChange}
+                    placeholder="Main Street"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Number</Form.Label>
+                  <Form.Control
+                    name="streetNumber"
+                    value={serviceForm.streetNumber}
+                    onChange={handleServiceFormChange}
+                    placeholder="12"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Floor</Form.Label>
+                  <Form.Control
+                    name="floor"
+                    value={serviceForm.floor}
+                    onChange={handleServiceFormChange}
+                    placeholder="2"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Door</Form.Label>
+                  <Form.Control
+                    name="door"
+                    value={serviceForm.door}
+                    onChange={handleServiceFormChange}
+                    placeholder="B"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          )}
 
           <Form.Group className="mb-3">
             <Form.Label>Extra details</Form.Label>

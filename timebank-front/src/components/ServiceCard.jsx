@@ -7,6 +7,7 @@ const ServiceCard = ({
   title,
   description,
   availability,
+  location,
   extra,
   price,
   image,
@@ -62,9 +63,17 @@ const ServiceCard = ({
                 Availability: {availability}
               </Card.Text>
 
-              <Card.Text className="small text-muted">
-                {extra}
-              </Card.Text>
+              {location && (
+                <Card.Text className="mb-1 small text-muted">
+                  {location}
+                </Card.Text>
+              )}
+
+              {extra && (
+                <Card.Text className="small text-muted">
+                  {extra}
+                </Card.Text>
+              )}
             </div>
 
             <div className="d-flex flex-column justify-content-between align-items-md-end">
