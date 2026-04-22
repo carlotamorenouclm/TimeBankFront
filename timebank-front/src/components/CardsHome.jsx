@@ -1,3 +1,4 @@
+// Renderiza el bloque de tarjetas informativas de la pagina Home.
 import React from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import './CardsHome.css';

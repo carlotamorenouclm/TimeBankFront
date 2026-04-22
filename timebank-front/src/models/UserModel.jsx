@@ -1,3 +1,4 @@
+// Adapta los datos del formulario de registro al formato esperado por la API.
 export const UserData = (firstName, lastName, email, password) => {
   return {
     name: firstName,

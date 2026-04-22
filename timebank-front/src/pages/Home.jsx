@@ -1,3 +1,4 @@
+// Landing publica del proyecto con hero, pasos de uso y acceso a registro.
 import React from 'react';
 import { Container, Navbar, Nav, Button, Row, Col, Card } from 'react-bootstrap';
 import '../App.css';

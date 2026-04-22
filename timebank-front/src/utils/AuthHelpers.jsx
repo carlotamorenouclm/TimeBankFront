@@ -1,7 +1,18 @@
+// Utilidades de autenticacion para validar el JWT guardado en localStorage.
 const decodeBase64Url = (base64Url) => {
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
   const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
   return atob(padded);
+};
+
+const clearAuthSession = () => {
+  localStorage.removeItem('access_token');
+};
+
+const redirectToLogin = () => {
+  if (window.location.pathname !== '/login') {
+    window.location.assign('/login');
+  }
 };
 
 const isAuthenticated = () => {
@@ -21,4 +32,4 @@ const isAuthenticated = () => {
   }
 };
 
-export { isAuthenticated };
+export { clearAuthSession, isAuthenticated, redirectToLogin };

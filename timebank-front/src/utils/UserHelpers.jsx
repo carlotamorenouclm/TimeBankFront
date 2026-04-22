@@ -1,3 +1,4 @@
+// Helpers to normalize user responses and backend error payloads.
 export const extractArrayPayload = (payload) => {
   if (Array.isArray(payload)) {
     return payload;
@@ -21,16 +22,12 @@ export const extractArrayPayload = (payload) => {
 export const normalizeUser = (user, idx) => {
   const firstName = user.firstName || user.name || user.first_name || '';
   const lastName = user.lastName || user.surname || user.last_name || '';
-  const parsedTimeTokens = Number(
-    user.timeTokens ?? user.time_tokens ?? user.tokens ?? user.balance ?? user.hours ?? 0
-  );
 
   return {
     id: user.id || user._id || `${firstName}-${lastName}-${idx}`,
     firstName,
     lastName,
-    email: user.email || user.mail || '',
-    timeTokens: Number.isFinite(parsedTimeTokens) ? parsedTimeTokens : 0
+    email: user.email || user.mail || ''
   };
 };
 

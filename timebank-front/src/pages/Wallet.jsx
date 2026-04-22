@@ -1,7 +1,9 @@
+// Vista de wallet del usuario: muestra saldo, recargas y permite anadir saldo.
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Card, Button, Form, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import { getAvatarImage } from '../constants/avatarOptions';
 import { getPortalSummary, getWallet, rechargeWallet } from '../services/portal/PortalService';
 
 const Wallet = () => {
@@ -14,6 +16,7 @@ const Wallet = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const avatarImage = getAvatarImage(profile.avatar_key);
 
   useEffect(() => {
     const loadWallet = async () => {
@@ -83,17 +86,28 @@ const Wallet = () => {
             }}
           >
             <div className="p-4 text-center border-bottom">
-              <div
-                className="mx-auto mb-3 rounded-circle bg-white"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  border: '2px solid rgba(0,0,0,0.15)',
-                }}
-              ></div>
+              <Link to="/profile" className="text-decoration-none text-reset d-block">
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    border: '2px solid rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {avatarImage && (
+                    <img
+                      src={avatarImage}
+                      alt="User avatar"
+                      className="w-100 h-100"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  )}
+                </div>
 
-              <div className="fw-semibold">{profile.name || 'User'}</div>
-              <div className="text-muted small">{profile.role || 'USER'}</div>
+                <div className="fw-semibold">{profile.name || 'User'}</div>
+                <div className="text-muted small">{profile.role || 'USER'}</div>
+              </Link>
             </div>
 
             <Nav className="flex-column">

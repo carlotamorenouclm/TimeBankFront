@@ -1,8 +1,9 @@
+// Servicios del panel de administracion para listar y actualizar cuentas.
 import {
   API_URL,
   USERS_PATH,
   ADMINS_PATH,
-  UPDATE_ROLE_TIME_TOKENS_PATH,
+  UPDATE_ROLE_PATH,
   UPDATE_USER_INFO_PATH
 } from '../../constants/API_paths';
 import {
@@ -71,11 +72,11 @@ export const checkIfAdmin = async (accessToken) => {
 	}
 };
 
-export const updateRoleTimeTokens = async ({ userId, newRole, newTimeTokens, accessToken }) => {
+export const updateUserRole = async ({ userId, newRole, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
   const response = await fetch(
-    `${API_URL}${ADMINS_PATH}${UPDATE_ROLE_TIME_TOKENS_PATH}/${userId}`,
+    `${API_URL}${ADMINS_PATH}${UPDATE_ROLE_PATH}/${userId}`,
     {
       method: 'POST',
       headers: {
@@ -83,8 +84,7 @@ export const updateRoleTimeTokens = async ({ userId, newRole, newTimeTokens, acc
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        new_role: newRole,
-        new_time_tokens: Number(newTimeTokens)
+        new_role: newRole
       })
     }
   );

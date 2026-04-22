@@ -1,3 +1,4 @@
+// Boton reutilizable con estilo redondeado usado por toda la interfaz.
 import React from 'react';
 import { Button } from 'react-bootstrap';
 

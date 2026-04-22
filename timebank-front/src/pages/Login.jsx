@@ -1,3 +1,4 @@
+// Pantalla de acceso: autentica y redirige al dashboard adecuado segun el rol.
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
@@ -66,7 +67,7 @@ const Login = () => {
                     />
                   </Form.Group>
 
-                  {/* Contraseña */}
+                  {/* Password */}
                   <Form.Group className="mb-4">
                     <Form.Label className="fw-600 mb-2">Password</Form.Label>
                     <Form.Control

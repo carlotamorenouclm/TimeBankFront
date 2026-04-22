@@ -1,7 +1,9 @@
+// User history view with filters for purchases, sales, or the full timeline.
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import { getAvatarImage } from '../constants/avatarOptions';
 import TransactionCard from '../components/TransactionCard';
 import { getHistory, getPortalSummary } from '../services/portal/PortalService';
 
@@ -40,6 +42,7 @@ const History = () => {
     if (filter === 'sales') return transaction.type === 'Sale';
     return true;
   });
+  const avatarImage = getAvatarImage(profile.avatar_key);
 
   return (
     <div
@@ -64,17 +67,28 @@ const History = () => {
             }}
           >
             <div className="p-4 text-center border-bottom">
-              <div
-                className="mx-auto mb-3 rounded-circle bg-white"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  border: '2px solid rgba(0,0,0,0.15)',
-                }}
-              ></div>
+              <Link to="/profile" className="text-decoration-none text-reset d-block">
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    border: '2px solid rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {avatarImage && (
+                    <img
+                      src={avatarImage}
+                      alt="User avatar"
+                      className="w-100 h-100"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  )}
+                </div>
 
-              <div className="fw-semibold">{profile.name || 'User'}</div>
-              <div className="text-muted small">{profile.role || 'USER'}</div>
+                <div className="fw-semibold">{profile.name || 'User'}</div>
+                <div className="text-muted small">{profile.role || 'USER'}</div>
+              </Link>
             </div>
 
             <Nav className="flex-column">
@@ -159,9 +173,9 @@ const History = () => {
                       className="bg-white shadow-sm text-center p-5"
                       style={{ borderRadius: '16px' }}
                     >
-                      <h5 className="fw-bold mb-2">No hay transacciones</h5>
+                      <h5 className="fw-bold mb-2">No transactions found</h5>
                       <p className="text-muted mb-0">
-                        No se encontraron movimientos para este filtro.
+                        No transactions match the selected filter.
                       </p>
                     </div>
                   </Col>

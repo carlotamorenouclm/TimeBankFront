@@ -1,4 +1,6 @@
+// Cliente HTTP generico para las rutas del portal que requieren token y JSON.
 const API_URL = import.meta.env.VITE_API_URL;
+import { clearAuthSession, redirectToLogin } from '../../utils/AuthHelpers';
 
 const getAuthHeaders = (includeJson = true) => {
   const token = localStorage.getItem('access_token');
@@ -31,6 +33,11 @@ export const apiRequest = async (path, options = {}) => {
   const responseData = await response.json().catch(() => null);
 
   if (!response.ok) {
+    if (response.status === 401) {
+      clearAuthSession();
+      redirectToLogin();
+    }
+
     throw new Error(responseData?.detail || `Request failed (status ${response.status})`);
   }
 

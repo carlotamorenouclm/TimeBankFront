@@ -1,12 +1,12 @@
+// Admin panel form used to edit personal data and role.
 import React, { useMemo, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
-import { updateRoleTimeTokens, updateUserInfo } from '../services/admin/UsersService';
+import { updateUserRole, updateUserInfo } from '../services/admin/UsersService';
 import {
   normalizeRole,
   normalizeText,
-  normalizeTimeTokens,
   validateEditUserInput
 } from '../utils/Normalized';
 
@@ -17,7 +17,6 @@ const EditUser = () => {
 
   const selectedUser = useMemo(() => location.state?.user || null, [location.state]);
   const initialRole = useMemo(() => normalizeRole(location.state?.role || 'User'), [location.state]);
-  const initialTimeTokens = useMemo(() => normalizeTimeTokens(selectedUser?.timeTokens ?? 0), [selectedUser]);
   const initialFirstName = useMemo(() => normalizeText(selectedUser?.firstName), [selectedUser]);
   const initialLastName = useMemo(() => normalizeText(selectedUser?.lastName), [selectedUser]);
 
@@ -25,8 +24,7 @@ const EditUser = () => {
     firstName: selectedUser?.firstName || '',
     lastName: selectedUser?.lastName || '',
     email: selectedUser?.email || '',
-    role: initialRole,
-    timeTokens: initialTimeTokens
+    role: initialRole
   });
   
   const [isSaving, setIsSaving] = useState(false);
@@ -48,13 +46,11 @@ const EditUser = () => {
     const normalizedCurrentRole = normalizeRole(formData.role);
     const normalizedCurrentFirstName = normalizeText(formData.firstName);
     const normalizedCurrentLastName = normalizeText(formData.lastName);
-    const normalizedCurrentTokens = normalizeTimeTokens(formData.timeTokens);
 
     const validationError = validateEditUserInput({
-      firstName: normalizedCurrentFirstName, lastName: normalizedCurrentLastName, timeTokens: normalizedCurrentTokens});
+      firstName: normalizedCurrentFirstName, lastName: normalizedCurrentLastName});
 
     const roleChanged = normalizedCurrentRole !== initialRole;
-    const tokensChanged = normalizedCurrentTokens !== initialTimeTokens;
     const firstNameChanged = normalizedCurrentFirstName !== initialFirstName;
     const lastNameChanged = normalizedCurrentLastName !== initialLastName;
     const userInfoChanged = firstNameChanged || lastNameChanged;
@@ -64,8 +60,8 @@ const EditUser = () => {
       return;
     }
 
-    if (!roleChanged && !tokensChanged && !userInfoChanged) {
-      setStatusMessage('No hubo cambios para guardar.');
+    if (!roleChanged && !userInfoChanged) {
+      setStatusMessage('There are no changes to save.');
       return;
     }
 
@@ -82,18 +78,17 @@ const EditUser = () => {
         });
       }
 
-      if (roleChanged || tokensChanged) {
-        await updateRoleTimeTokens({
+      if (roleChanged) {
+        await updateUserRole({
           userId,
           newRole: normalizedCurrentRole,
-          newTimeTokens: normalizedCurrentTokens,
           accessToken: token
         });
       }
 
-      setStatusMessage('Cambios guardados correctamente.');
+      setStatusMessage('Changes saved successfully.');
     } catch (error) {
-      setErrorMessage(error.message || 'No se pudo actualizar el usuario.');
+      setErrorMessage(error.message || 'The user could not be updated.');
     } finally {
       setIsSaving(false);
     }
@@ -117,15 +112,15 @@ const EditUser = () => {
               }}
             >
               <Card.Body className="p-4 p-md-5">
-                <h1 className="fw-bold mb-2">Editar usuario</h1>
+                <h1 className="fw-bold mb-2">Edit user</h1>
                 <p className="text-muted mb-4">
-                  ID del usuario: <strong>{userId}</strong>
+                  User ID: <strong>{userId}</strong>
                 </p>
 
                 <Form onSubmit={handleSubmit}>
 
                   <Form.Group className="mb-3" controlId="firstName">
-                    <Form.Label>Nombre</Form.Label>
+                    <Form.Label>First name</Form.Label>
                     <Form.Control
                       type="text" name="firstName"
                       value={formData.firstName}
@@ -135,7 +130,7 @@ const EditUser = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-3" controlId="lastName">
-                    <Form.Label>Apellido</Form.Label>
+                    <Form.Label>Last name</Form.Label>
                     <Form.Control
                       type="text" name="lastName"
                       value={formData.lastName}
@@ -155,7 +150,7 @@ const EditUser = () => {
                   </Form.Group>
 
                   <Form.Group className="mb-4" controlId="role">
-                    <Form.Label>Rol</Form.Label>
+                    <Form.Label>Role</Form.Label>
                     <Form.Select
                         name="role"
                         value={formData.role}
@@ -166,18 +161,6 @@ const EditUser = () => {
                       </Form.Select>
                   </Form.Group>
 
-                  <Form.Group className="mb-4" controlId="timeTokens">
-                    <Form.Label>Time Tokens</Form.Label>
-                    <Form.Control
-                      type="number"
-                      min="0"
-                      step="1"
-                      name="timeTokens"
-                      value={formData.timeTokens}
-                      onChange={handleChange}
-                    />
-                  </Form.Group>
-
                   <div className="d-flex flex-column gap-2">
                       <div className="d-flex flex-column">
                         {statusMessage && <span className="text-success">{statusMessage}</span>}
@@ -186,7 +169,7 @@ const EditUser = () => {
 
                     <div className="d-flex flex-wrap gap-2">
                       <Button type="submit" variant="primary" disabled={isSaving}>
-                        {isSaving ? 'Keeping...' : 'Keep changes'}
+                        {isSaving ? 'Saving...' : 'Save changes'}
                       </Button>
                       <Button type="button" variant="outline-secondary" onClick={() => navigate('/dashboardadmin')}>
                         Go back

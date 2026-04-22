@@ -1,3 +1,4 @@
+// Panel de administracion para alternar entre lista de admins y lista de usuarios.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import NavbarCustom from '../components/NavbarCustom';

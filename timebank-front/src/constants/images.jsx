@@ -1,3 +1,4 @@
+// Agrupa las imagenes usadas en la pagina Home.
 import homeImage1 from '../assets/home/home-image1.png';
 import homeImage2 from '../assets/home/home-image2.png';
 import homeOffer from '../assets/home/home-offer.png';

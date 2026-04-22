@@ -1,3 +1,4 @@
+// Individual card used to render one movement in the exchange history.
 import React from 'react';
 import { Card, Badge } from 'react-bootstrap';
 
@@ -40,16 +41,24 @@ const TransactionCard = ({ transaction }) => {
             </div>
 
             <p className="mb-1 text-muted">
-              <strong>Type:</strong> {transaction.type}
-            </p>
-
-            <p className="mb-1 text-muted">
               <strong>User:</strong> {otherUser}
             </p>
 
             <p className="mb-3 text-muted">
               <strong>Date:</strong> {transaction.date}
             </p>
+
+            {transaction.address && (
+              <p className="mb-3 text-muted">
+                <strong>Address:</strong> {transaction.address}
+              </p>
+            )}
+
+            {transaction.clarification && (
+              <p className="mb-3 text-muted">
+                <strong>Provider note:</strong> {transaction.clarification}
+              </p>
+            )}
           </div>
 
           <div

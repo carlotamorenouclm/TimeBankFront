@@ -1,3 +1,4 @@
+// Servicio de alta de usuarios nuevos desde el formulario de registro.
 import { UserData } from '../../models/UserModel';
 import { API_URL } from '../../constants/API_paths';
 import { parseApiError } from '../../utils/UserHelpers';

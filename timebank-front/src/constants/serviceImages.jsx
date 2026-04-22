@@ -1,3 +1,4 @@
+// Map each backend image_key to a local frontend image asset.
 import bikeImg from '../assets/bike.jpg';
 import cleanImg from '../assets/clean.jpg';
 import dogImg from '../assets/dog.jpg';
@@ -15,3 +16,13 @@ const serviceImages = {
 };
 
 export const getServiceImage = (imageKey) => serviceImages[imageKey] || computerImg;
+
+// Expose catalog-safe image options so forms only send supported keys.
+export const serviceImageOptions = [
+  { value: 'bike', label: 'Bike repair' },
+  { value: 'clean', label: 'House cleaning' },
+  { value: 'dog', label: 'Dog walking' },
+  { value: 'computer', label: 'Computer repair' },
+  { value: 'ingles', label: 'English lessons' },
+  { value: 'mates', label: 'Math tutoring' },
+];

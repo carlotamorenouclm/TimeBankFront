@@ -1,3 +1,4 @@
+// Navbar comun de la app: muestra accesos publicos o privados segun sesion.
 import React from 'react';
 import { Container, Navbar, Nav } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';

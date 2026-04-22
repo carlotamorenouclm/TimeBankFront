@@ -1,8 +1,19 @@
+// Visual card for each service shown in the user catalog.
 import React from 'react';
 import { Card, Row, Col } from 'react-bootstrap';
 import ButtonPill from './ButtonPill';
 
-const ServiceCard = ({ title, description, availability, extra, price, image }) => {
+const ServiceCard = ({
+  title,
+  description,
+  availability,
+  extra,
+  price,
+  image,
+  actionLabel = 'Request',
+  onAction,
+  actionDisabled = false,
+}) => {
   return (
     <Card
       className="shadow-sm border-0"
@@ -67,8 +78,12 @@ const ServiceCard = ({ title, description, availability, extra, price, image }) 
                 {price}
               </div>
 
-              <ButtonPill className="px-4">
-                Request
+              <ButtonPill
+                className="px-4"
+                onClick={onAction}
+                disabled={actionDisabled}
+              >
+                {actionLabel}
               </ButtonPill>
             </div>
           </Card.Body>

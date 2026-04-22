@@ -1,3 +1,4 @@
+// Admin panel card that summarizes one user and opens the edit page.
 import React from 'react';
 import { Badge, Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -20,14 +21,10 @@ const UserListCard = ({ user, roleLabel, badgeVariant }) => {
         </div>
 
         <Card.Text className="mb-2 text-secondary">{user.email}</Card.Text>
-        <Card.Text className="mb-3 text-muted">
-          Time tokens: {user.timeTokens ?? 0}
-        </Card.Text>
-
         <Button
           variant="outline-primary"
           size="sm"
-          aria-label={`Editar usuario ${fullName}`}
+          aria-label={`Edit user ${fullName}`}
           className="edit-user-button mt-auto align-self-end"
           onClick={handleEditUser}
         ><span>Edit</span></Button>

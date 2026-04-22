@@ -1,3 +1,4 @@
+// Pantalla de registro de nuevos usuarios de la plataforma.
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';

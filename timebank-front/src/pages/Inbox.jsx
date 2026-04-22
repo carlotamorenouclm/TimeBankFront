@@ -1,7 +1,9 @@
+// Bandeja de entrada del usuario para gestionar solicitudes recibidas.
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Nav, Modal, Form, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import { getAvatarImage } from '../constants/avatarOptions';
 import Request from '../components/Request';
 import { getServiceImage } from '../constants/serviceImages';
 import {
@@ -23,6 +25,7 @@ const Inbox = () => {
   const [acceptForm, setAcceptForm] = useState({ clarification: '' });
   const [rejectReason, setRejectReason] = useState('');
 
+  // Enriquece lo que viene del backend con la imagen local que necesita la UI.
   const normalizeRequests = (items = []) =>
     items.map((item) => ({
       ...item,
@@ -100,6 +103,7 @@ const Inbox = () => {
 
   const pendingRequests = requests.filter((req) => req.status === 'pending');
   const processedRequests = requests.filter((req) => req.status !== 'pending');
+  const avatarImage = getAvatarImage(profile.avatar_key);
 
   return (
     <div
@@ -123,17 +127,28 @@ const Inbox = () => {
             }}
           >
             <div className="p-4 text-center border-bottom">
-              <div
-                className="mx-auto mb-3 rounded-circle bg-white"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  border: '2px solid rgba(0,0,0,0.15)',
-                }}
-              ></div>
+              <Link to="/profile" className="text-decoration-none text-reset d-block">
+                <div
+                  className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
+                  style={{
+                    width: '80px',
+                    height: '80px',
+                    border: '2px solid rgba(0,0,0,0.15)',
+                  }}
+                >
+                  {avatarImage && (
+                    <img
+                      src={avatarImage}
+                      alt="User avatar"
+                      className="w-100 h-100"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  )}
+                </div>
 
-              <div className="fw-semibold">{profile.name || 'User'}</div>
-              <div className="text-muted small">{profile.role || 'USER'}</div>
+                <div className="fw-semibold">{profile.name || 'User'}</div>
+                <div className="text-muted small">{profile.role || 'USER'}</div>
+              </Link>
             </div>
 
             <Nav className="flex-column">
@@ -205,48 +220,10 @@ const Inbox = () => {
               <>
                 <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
 
-                <Row className="g-3">
+                <Row className="g-4">
                   {processedRequests.map((request) => (
                     <Col xs={12} key={request.id}>
-                      <div
-                        className="shadow-sm p-4"
-                        style={{
-                          borderRadius: '20px',
-                          backgroundColor:
-                            request.status === 'accepted' ? '#e8f5e9' : '#fdeaea',
-                        }}
-                      >
-                        <h5 className="fw-bold mb-2">{request.service}</h5>
-                        <p className="mb-1 text-muted">
-                          <strong>From:</strong> {request.requester_name}
-                        </p>
-                        <p className="mb-1">{request.description}</p>
-                        <p className="mb-1 text-muted">
-                          <strong>Request:</strong> {request.date}
-                        </p>
-                        <p className="mb-1 text-muted">
-                          <strong>Address:</strong> {request.address}
-                        </p>
-                        <p className="mb-2 text-muted">
-                          <strong>Message:</strong> {request.message}
-                        </p>
-
-                        {request.status === 'accepted' && request.clarification && (
-                          <p className="mb-1">
-                            <strong>Clarification:</strong> {request.clarification}
-                          </p>
-                        )}
-
-                        {request.status === 'rejected' && request.reject_reason && (
-                          <p className="mb-1">
-                            <strong>Reject reason:</strong> {request.reject_reason}
-                          </p>
-                        )}
-
-                        <p className="mb-0 fw-bold">
-                          {request.status === 'accepted' ? 'Accepted' : 'Rejected'}
-                        </p>
-                      </div>
+                      <Request request={request} />
                     </Col>
                   ))}
                 </Row>
