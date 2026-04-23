@@ -14,15 +14,17 @@ export const registerUser = async ({ firstName, lastName, email, password }) => 
 
     const response = await fetch(`${API_URL}/users/signup`, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},body: JSON.stringify(userData)});
-      
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+
     const responseData = await response.json().catch(() => ({}));
 
 
     if (!response.ok) {
       throw new Error(parseApiError(responseData, response.status) || `Registration failed (status ${response.status} )`);
     }
-    return await response.json();
+    return responseData;
 
   } catch (error) {
     console.error('Error registering user:', error);
