@@ -183,7 +183,3 @@ Profile:
 2. Open the administration dashboard.
 3. Switch between `Ver administradores` and `Ver usuarios`.
 4. Review user cards and manage account data or roles through the admin flows.
-
-## Credits
-
-Some illustrations used in the project come from [Storyset](https://storyset.com/work).
