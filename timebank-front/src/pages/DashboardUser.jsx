@@ -1,17 +1,13 @@
 // Main user portal view: loads the profile summary, catalog, and purchase flow.
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Nav, Button, Modal, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import NavbarCustom from '../components/NavbarCustom';
+import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
-import { getAvatarImage } from '../constants/avatarOptions';
 import { getServiceImage, serviceImageOptions } from '../constants/serviceImages';
 import {
   createServiceOffer,
   createServiceRequest,
   deleteServiceOffer,
   getDashboardServices,
-  getPortalSummary,
 } from '../services/portal/PortalService';
 
 const initialRequestForm = {
@@ -40,7 +36,6 @@ const initialServiceForm = {
 const DashboardUser = () => {
   const [services, setServices] = useState([]);
   const [myServices, setMyServices] = useState([]);
-  const [profile, setProfile] = useState({ name: '', role: 'USER' });
   const [activeTab, setActiveTab] = useState('buy');
   const [selectedService, setSelectedService] = useState(null);
   const [requestForm, setRequestForm] = useState(initialRequestForm);
@@ -60,12 +55,7 @@ const DashboardUser = () => {
       setIsLoading(true);
       setError('');
 
-      const [summaryData, dashboardData] = await Promise.all([
-        getPortalSummary(),
-        getDashboardServices(),
-      ]);
-
-      setProfile(summaryData);
+      const dashboardData = await getDashboardServices();
       setServices(dashboardData?.services || []);
       setMyServices(dashboardData?.my_services || []);
     } catch (loadError) {
@@ -246,170 +236,81 @@ const DashboardUser = () => {
   };
 
   const servicesToRender = activeTab === 'buy' ? services : myServices;
-  const avatarImage = getAvatarImage(profile.avatar_key);
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8f9fc',
-        fontFamily: "'Inter', sans-serif",
-        color: '#2d3436',
-      }}
-    >
-      <NavbarCustom />
+    <>
+      <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <h2 className="fw-bold mb-0">
+          {activeTab === 'buy' ? 'Available Services' : 'My Published Services'}
+        </h2>
 
-      <Container fluid className="px-0">
-        <Row className="g-0" style={{ minHeight: 'calc(100vh - 70px)' }}>
-          <Col
-            xs={12}
-            md={3}
-            lg={2}
-            style={{
-              backgroundColor: '#dbe8f7',
-              borderRight: '1px solid rgba(0,0,0,0.08)',
-            }}
+        <div className="d-flex gap-2">
+          <Button
+            variant={activeTab === 'buy' ? 'primary' : 'outline-primary'}
+            onClick={() => setActiveTab('buy')}
           >
-            <div className="p-4 text-center border-bottom">
-              <Link to="/profile" className="text-decoration-none text-reset d-block">
-                <div
-                  className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
-                  style={{
-                    width: '80px',
-                    height: '80px',
-                    border: '2px solid rgba(0,0,0,0.15)',
-                  }}
-                >
-                  {avatarImage && (
-                    <img
-                      src={avatarImage}
-                      alt="User avatar"
-                      className="w-100 h-100"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  )}
-                </div>
+            Buy
+          </Button>
+          <Button
+            variant={activeTab === 'sell' ? 'primary' : 'outline-primary'}
+            onClick={() => setActiveTab('sell')}
+          >
+            Sell
+          </Button>
+          <Button variant="success" onClick={openPublishModal}>
+            Publish service
+          </Button>
+        </div>
+      </div>
 
-                <div className="fw-semibold">{profile.name || 'User'}</div>
-                <div className="text-muted small">{profile.role || 'USER'}</div>
-              </Link>
-            </div>
+      {error && <div className="alert alert-danger">{error}</div>}
+      {isLoading && <p className="text-muted">Loading services...</p>}
 
-            <Nav className="flex-column">
-              <Nav.Link
-                as={Link}
-                to="/dashboarduser"
-                className="px-4 py-3 fw-semibold"
-                style={{
-                  backgroundColor: '#6ea8fe',
-                  color: 'white',
-                }}
-              >
-                Catalog
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/history"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                History
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/inbox"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Inbox
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/wallet"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Wallet
-              </Nav.Link>
-            </Nav>
-          </Col>
-
-          <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-              <h2 className="fw-bold mb-0">
-                {activeTab === 'buy' ? 'Available Services' : 'My Published Services'}
-              </h2>
-
-              <div className="d-flex gap-2">
-                <Button
-                  variant={activeTab === 'buy' ? 'primary' : 'outline-primary'}
-                  onClick={() => setActiveTab('buy')}
-                >
-                  Buy
-                </Button>
-                <Button
-                  variant={activeTab === 'sell' ? 'primary' : 'outline-primary'}
-                  onClick={() => setActiveTab('sell')}
-                >
-                  Sell
-                </Button>
-                <Button variant="success" onClick={openPublishModal}>
-                  Publish service
-                </Button>
+      {!isLoading && !error && (
+        <Row className="g-4">
+          {servicesToRender.length > 0 ? (
+            servicesToRender.map((service) => (
+              <Col xs={12} key={service.id}>
+                <ServiceCard
+                  title={service.title}
+                  description={service.description}
+                  availability={service.availability}
+                  location={
+                    service.home_service
+                      ? 'Home service'
+                      : service.address
+                        ? `Address: ${service.address}`
+                        : 'Address pending'
+                  }
+                  extra={[service.extra, `Provider: ${service.owner_name}`]
+                    .filter(Boolean)
+                    .join(' · ')}
+                  price={`${service.price} coins`}
+                  image={getServiceImage(service.image_key)}
+                  actionLabel={activeTab === 'buy' ? 'Request' : 'Delete'}
+                  actionDisabled={false}
+                  onAction={() =>
+                    activeTab === 'buy' ? openRequestModal(service) : openDeleteModal(service)
+                  }
+                />
+              </Col>
+            ))
+          ) : (
+            <Col xs={12}>
+              <div className="bg-white shadow-sm text-center p-5" style={{ borderRadius: '16px' }}>
+                <h5 className="fw-bold mb-2">
+                  {activeTab === 'buy' ? 'No services available' : 'No published services'}
+                </h5>
+                <p className="text-muted mb-0">
+                  {activeTab === 'buy'
+                    ? 'Register another user or create more offers to test purchases.'
+                    : 'This user does not own any service yet.'}
+                </p>
               </div>
-            </div>
-
-            {error && <div className="alert alert-danger">{error}</div>}
-            {isLoading && <p className="text-muted">Loading services...</p>}
-
-            {!isLoading && !error && (
-              <Row className="g-4">
-                {servicesToRender.length > 0 ? (
-                  servicesToRender.map((service) => (
-                    <Col xs={12} key={service.id}>
-                      <ServiceCard
-                        title={service.title}
-                        description={service.description}
-                        availability={service.availability}
-                        location={
-                          service.home_service
-                            ? 'Home service'
-                            : service.address
-                              ? `Address: ${service.address}`
-                              : 'Address pending'
-                        }
-                        extra={[service.extra, `Provider: ${service.owner_name}`]
-                          .filter(Boolean)
-                          .join(' · ')}
-                        price={`${service.price} coins`}
-                        image={getServiceImage(service.image_key)}
-                        actionLabel={activeTab === 'buy' ? 'Request' : 'Delete'}
-                        actionDisabled={false}
-                        onAction={() =>
-                          activeTab === 'buy' ? openRequestModal(service) : openDeleteModal(service)
-                        }
-                      />
-                    </Col>
-                  ))
-                ) : (
-                  <Col xs={12}>
-                    <div className="bg-white shadow-sm text-center p-5" style={{ borderRadius: '16px' }}>
-                      <h5 className="fw-bold mb-2">
-                        {activeTab === 'buy' ? 'No services available' : 'No published services'}
-                      </h5>
-                      <p className="text-muted mb-0">
-                        {activeTab === 'buy'
-                          ? 'Register another user or create more offers to test purchases.'
-                          : 'This user does not own any service yet.'}
-                      </p>
-                    </div>
-                  </Col>
-                )}
-              </Row>
-            )}
-          </Col>
+            </Col>
+          )}
         </Row>
-      </Container>
+      )}
 
       <Modal show={showRequestModal} onHide={() => setShowRequestModal(false)} centered>
         <Modal.Body style={{ padding: '2rem', backgroundColor: '#dbe8f7' }}>
@@ -736,7 +637,7 @@ const DashboardUser = () => {
           </div>
         </Modal.Body>
       </Modal>
-    </div>
+    </>
   );
 };
 
