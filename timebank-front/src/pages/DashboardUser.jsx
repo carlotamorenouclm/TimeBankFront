@@ -1,8 +1,9 @@
 // Main user portal view: loads the profile summary, catalog, and purchase flow.
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Nav, Button, Modal, Form } from 'react-bootstrap';
+import { Container, Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import UserSidebarNav from '../components/UserSidebarNav';
 import ServiceCard from '../components/ServiceCard';
 import { getAvatarImage } from '../constants/avatarOptions';
 import { getServiceImage, serviceImageOptions } from '../constants/serviceImages';
@@ -295,43 +296,7 @@ const DashboardUser = () => {
               </Link>
             </div>
 
-            <Nav className="flex-column">
-              <Nav.Link
-                as={Link}
-                to="/dashboarduser"
-                className="px-4 py-3 fw-semibold"
-                style={{
-                  backgroundColor: '#6ea8fe',
-                  color: 'white',
-                }}
-              >
-                Catalog
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/history"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                History
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/inbox"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Inbox
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/wallet"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Wallet
-              </Nav.Link>
-            </Nav>
+            <UserSidebarNav />
           </Col>
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">

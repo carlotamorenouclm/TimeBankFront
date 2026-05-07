@@ -1,8 +1,9 @@
 // User history view with filters for purchases, sales, or the full timeline.
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Nav, Button } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import UserSidebarNav from '../components/UserSidebarNav';
 import { getAvatarImage } from '../constants/avatarOptions';
 import TransactionCard from '../components/TransactionCard';
 import { getHistory, getPortalSummary } from '../services/portal/PortalService';
@@ -91,43 +92,7 @@ const History = () => {
               </Link>
             </div>
 
-            <Nav className="flex-column">
-              <Nav.Link
-                as={Link}
-                to="/dashboarduser"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Catalog
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/history"
-                className="px-4 py-3 fw-semibold"
-                style={{
-                  backgroundColor: '#6ea8fe',
-                  color: 'white',
-                }}
-              >
-                History
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/inbox"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Inbox
-              </Nav.Link>
-
-              <Nav.Link
-                as={Link}
-                to="/wallet"
-                className="px-4 py-3 fw-semibold text-dark"
-              >
-                Wallet
-              </Nav.Link>
-            </Nav>
+            <UserSidebarNav />
           </Col>
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">

@@ -1,8 +1,9 @@
 // User profile page where the authenticated user can review, edit, or delete the account.
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Nav, Card, Form, Button, Modal } from 'react-bootstrap';
-import { Link, useNavigate } from 'react-router-dom';
+import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import UserSidebarNav from '../components/UserSidebarNav';
 import { avatarOptions, getAvatarImage } from '../constants/avatarOptions';
 import {
   deleteMyAccount,
@@ -147,20 +148,7 @@ const ProfileUser = () => {
               <div className="text-muted small">{profile.role || 'USER'}</div>
             </div>
 
-            <Nav className="flex-column">
-              <Nav.Link as={Link} to="/dashboarduser" className="px-4 py-3 fw-semibold text-dark">
-                Catalog
-              </Nav.Link>
-              <Nav.Link as={Link} to="/history" className="px-4 py-3 fw-semibold text-dark">
-                History
-              </Nav.Link>
-              <Nav.Link as={Link} to="/inbox" className="px-4 py-3 fw-semibold text-dark">
-                Inbox
-              </Nav.Link>
-              <Nav.Link as={Link} to="/wallet" className="px-4 py-3 fw-semibold text-dark">
-                Wallet
-              </Nav.Link>
-            </Nav>
+            <UserSidebarNav />
           </Col>
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
