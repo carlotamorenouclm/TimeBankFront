@@ -19,7 +19,7 @@ const ProfileUser = () => {
     role: 'USER',
     avatar_key: null,
   });
-  const [formData, setFormData] = useState({ name: '', surname: '', avatar_key: '' });
+  const [formData, setFormData] = useState({ name: '', surname: '', email: '', avatar_key: '' });
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -42,6 +42,7 @@ const ProfileUser = () => {
         setFormData({
           name: me?.name || '',
           surname: me?.surname || '',
+          email: me?.email || '',
           avatar_key: me?.avatar_key || '',
         });
       } catch (loadError) {
@@ -69,12 +70,14 @@ const ProfileUser = () => {
       const updated = await updateMyProfile({
         name: formData.name,
         surname: formData.surname,
+        email: formData.email,
         avatar_key: formData.avatar_key || null,
       });
       setProfile((prev) => ({
         ...prev,
         name: updated?.name || '',
         surname: updated?.surname || '',
+        email: updated?.email || '',
         avatar_key: updated?.avatar_key || '',
       }));
       setStatusMessage('Profile updated successfully.');

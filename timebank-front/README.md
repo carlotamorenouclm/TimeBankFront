@@ -1,19 +1,42 @@
-# React + Vite
+# TimeBank Frontend App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This directory contains the React + Vite application for **TimeBank**.
 
-Currently, two official plugins are available:
+For the complete frontend documentation, see the repository README one level above:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```text
+../README.md
+```
 
-## React Compiler
+## Quick Start
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+Create a `.env` file in this directory:
 
-## Expanding the ESLint configuration
+```env
+VITE_API_URL=http://localhost:8000
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Install dependencies:
 
-## Ilustrations are from
-<a href="https://storyset.com/work">Work illustrations by Storyset</a>
+```bash
+npm install
+```
+
+Run the development server:
+
+```bash
+npm run dev
+```
+
+Available scripts:
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Starts the Vite development server. |
+| `npm run build` | Builds the production version. |
+| `npm run lint` | Runs ESLint. |
+| `npm run preview` | Serves the production build locally. |
+
+## Credits
+
+Some illustrations used in the project come from [Storyset](https://storyset.com/work).
