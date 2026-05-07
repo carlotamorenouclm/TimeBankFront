@@ -1,22 +1,16 @@
 // Bandeja de entrada del usuario para gestionar solicitudes recibidas.
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Modal, Form, Button } from 'react-bootstrap';
-import NavbarCustom from '../components/NavbarCustom';
-import SidebarUserCard from '../components/SidebarUserCard';
-import UserSidebarNav from '../components/UserSidebarNav';
-import { getAvatarImage } from '../constants/avatarOptions';
+import { Row, Col, Modal, Form, Button } from 'react-bootstrap';
 import Request from '../components/Request';
 import { getServiceImage } from '../constants/serviceImages';
 import {
   acceptInboxRequest,
   getInbox,
-  getPortalSummary,
   rejectInboxRequest,
 } from '../services/portal/PortalService';
 
 const Inbox = () => {
   const [requests, setRequests] = useState([]);
-  const [profile, setProfile] = useState({ name: '', role: 'USER' });
   const [showAcceptModal, setShowAcceptModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -39,12 +33,7 @@ const Inbox = () => {
         setIsLoading(true);
         setError('');
 
-        const [summaryData, inboxData] = await Promise.all([
-          getPortalSummary(),
-          getInbox(),
-        ]);
-
-        setProfile(summaryData);
+        const inboxData = await getInbox();
         setRequests(normalizeRequests(inboxData?.requests));
       } catch (loadError) {
         setError(loadError.message || 'Error loading inbox');
@@ -104,80 +93,39 @@ const Inbox = () => {
 
   const pendingRequests = requests.filter((req) => req.status === 'pending');
   const processedRequests = requests.filter((req) => req.status !== 'pending');
-  const avatarImage = getAvatarImage(profile.avatar_key);
-
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8f9fc',
-        fontFamily: "'Inter', sans-serif",
-      }}
-    >
-      <NavbarCustom />
+    <>
+      <h2 className="fw-bold mb-4">Received requests</h2>
+      {error && <div className="alert alert-danger">{error}</div>}
+      {isLoading && <p className="text-muted">Loading requests...</p>}
 
-      <Container fluid className="px-0">
-        <Row className="g-0" style={{ minHeight: 'calc(100vh - 70px)' }}>
-          <Col
-            xs={12}
-            md={3}
-            lg={2}
-            style={{
-              backgroundColor: '#dbe8f7',
-              borderRight: '1px solid rgba(0,0,0,0.08)',
-            }}
-          >
-            <SidebarUserCard
-              avatarImage={avatarImage}
-              name={profile.name}
-              email={profile.email}
-            />
-
-            <UserSidebarNav />
-          </Col>
-
-          <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
-            <h2 className="fw-bold mb-4">Received requests</h2>
-            {error && <div className="alert alert-danger">{error}</div>}
-            {isLoading && <p className="text-muted">Loading requests...</p>}
-
-            {!isLoading && pendingRequests.length === 0 ? (
-              <div
-                className="bg-white shadow-sm p-4 mb-4"
-                style={{ borderRadius: '16px' }}
-              >
-                <p className="mb-0 text-muted">You have no pending requests.</p>
-              </div>
-            ) : (
-              <Row className="g-4">
-                {pendingRequests.map((request) => (
-                  <Col xs={12} key={request.id}>
-                    <Request
-                      request={request}
-                      onAccept={openAcceptModal}
-                      onReject={openRejectModal}
-                    />
-                  </Col>
-                ))}
-              </Row>
-            )}
-
-            {!isLoading && processedRequests.length > 0 && (
-              <>
-                <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
-
-                <Row className="g-4">
-                  {processedRequests.map((request) => (
-                    <Col xs={12} key={request.id}>
-                      <Request request={request} />
-                    </Col>
-                  ))}
-                </Row>
-              </>
-            )}
-          </Col>
+      {!isLoading && pendingRequests.length === 0 ? (
+        <div className="bg-white shadow-sm p-4 mb-4" style={{ borderRadius: '16px' }}>
+          <p className="mb-0 text-muted">You have no pending requests.</p>
+        </div>
+      ) : (
+        <Row className="g-4">
+          {pendingRequests.map((request) => (
+            <Col xs={12} key={request.id}>
+              <Request request={request} onAccept={openAcceptModal} onReject={openRejectModal} />
+            </Col>
+          ))}
         </Row>
-      </Container>
+      )}
+
+      {!isLoading && processedRequests.length > 0 && (
+        <>
+          <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
+
+          <Row className="g-4">
+            {processedRequests.map((request) => (
+              <Col xs={12} key={request.id}>
+                <Request request={request} />
+              </Col>
+            ))}
+          </Row>
+        </>
+      )}
 
       <Modal show={showAcceptModal} onHide={() => setShowAcceptModal(false)} centered>
         <Modal.Body style={{ padding: '2rem' }}>
@@ -234,7 +182,7 @@ const Inbox = () => {
           </div>
         </Modal.Body>
       </Modal>
-    </div>
+    </>
   );
 };
 
