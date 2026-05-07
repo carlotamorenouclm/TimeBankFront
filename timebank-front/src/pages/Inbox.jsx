@@ -130,7 +130,7 @@ const Inbox = () => {
             <SidebarUserCard
               avatarImage={avatarImage}
               name={profile.name}
-              role={profile.role}
+              email={profile.email}
             />
 
             <UserSidebarNav />

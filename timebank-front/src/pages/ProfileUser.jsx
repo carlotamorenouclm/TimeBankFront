@@ -129,7 +129,7 @@ const ProfileUser = () => {
             <SidebarUserCard
               avatarImage={avatarImage}
               name={fullName}
-              role={profile.role}
+              email={profile.email}
               linkEnabled={false}
             />
 

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const SidebarUserCard = ({
   name,
-  role,
+  email,
   avatarImage,
   linkTo = '/profile',
   linkEnabled = true,
@@ -29,7 +29,7 @@ const SidebarUserCard = ({
       </div>
 
       <div className="fw-semibold">{name || 'User'}</div>
-      <div className="text-muted small">{role || 'USER'}</div>
+      <div className="text-muted small">{email}</div>
     </>
   );
 
