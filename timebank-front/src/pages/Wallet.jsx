@@ -1,8 +1,8 @@
 // Vista de wallet del usuario: muestra saldo, recargas y permite anadir saldo.
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Form, Modal } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import SidebarUserCard from '../components/SidebarUserCard';
 import UserSidebarNav from '../components/UserSidebarNav';
 import { getAvatarImage } from '../constants/avatarOptions';
 import { getPortalSummary, getWallet, rechargeWallet } from '../services/portal/PortalService';
@@ -86,30 +86,11 @@ const Wallet = () => {
               borderRight: '1px solid rgba(0,0,0,0.08)',
             }}
           >
-            <div className="p-4 text-center border-bottom">
-              <Link to="/profile" className="text-decoration-none text-reset d-block">
-                <div
-                  className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
-                  style={{
-                    width: '80px',
-                    height: '80px',
-                    border: '2px solid rgba(0,0,0,0.15)',
-                  }}
-                >
-                  {avatarImage && (
-                    <img
-                      src={avatarImage}
-                      alt="User avatar"
-                      className="w-100 h-100"
-                      style={{ objectFit: 'cover' }}
-                    />
-                  )}
-                </div>
-
-                <div className="fw-semibold">{profile.name || 'User'}</div>
-                <div className="text-muted small">{profile.role || 'USER'}</div>
-              </Link>
-            </div>
+            <SidebarUserCard
+              avatarImage={avatarImage}
+              name={profile.name}
+              role={profile.role}
+            />
 
             <UserSidebarNav />
           </Col>

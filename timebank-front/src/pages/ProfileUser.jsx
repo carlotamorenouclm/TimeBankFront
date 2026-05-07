@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
+import SidebarUserCard from '../components/SidebarUserCard';
 import UserSidebarNav from '../components/UserSidebarNav';
 import { avatarOptions, getAvatarImage } from '../constants/avatarOptions';
 import {
@@ -125,28 +126,12 @@ const ProfileUser = () => {
               borderRight: '1px solid rgba(0,0,0,0.08)',
             }}
           >
-            <div className="p-4 text-center border-bottom">
-              <div
-                className="mx-auto mb-3 rounded-circle bg-white overflow-hidden"
-                style={{
-                  width: '80px',
-                  height: '80px',
-                  border: '2px solid rgba(0,0,0,0.15)',
-                }}
-              >
-                {avatarImage && (
-                  <img
-                    src={avatarImage}
-                    alt="Selected avatar"
-                    className="w-100 h-100"
-                    style={{ objectFit: 'cover' }}
-                  />
-                )}
-              </div>
-
-              <div className="fw-semibold">{fullName}</div>
-              <div className="text-muted small">{profile.role || 'USER'}</div>
-            </div>
+            <SidebarUserCard
+              avatarImage={avatarImage}
+              name={fullName}
+              role={profile.role}
+              linkEnabled={false}
+            />
 
             <UserSidebarNav />
           </Col>
