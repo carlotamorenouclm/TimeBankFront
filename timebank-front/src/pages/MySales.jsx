@@ -8,7 +8,7 @@ import {
   sendChatMessage,
   sendThreadMessage,
 } from '../services/chat/ChatService';
-import { getHistory } from '../services/portal/PortalService';
+import { completeRequest, getHistory } from '../services/portal/PortalService';
 
 const MySales = () => {
   const [transactions, setTransactions] = useState([]);
@@ -21,6 +21,7 @@ const MySales = () => {
   const [chatError, setChatError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [completingId, setCompletingId] = useState(null);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -97,6 +98,37 @@ const MySales = () => {
     }
   };
 
+  const handleComplete = async (transaction) => {
+    const requestId = transaction.request_id;
+    if (!requestId) {
+      setError('Missing request id for this transaction.');
+      return;
+    }
+
+    try {
+      setCompletingId(transaction.id);
+      setError('');
+      const response = await completeRequest(requestId);
+      if (response?.transactions) {
+        setTransactions(
+          response.transactions.filter((item) => item.type === 'Sale'),
+        );
+      } else {
+        setTransactions((prev) =>
+          prev.map((item) =>
+            item.id === transaction.id
+              ? { ...item, status: 'completed' }
+              : item,
+          ),
+        );
+      }
+    } catch (saveError) {
+      setError(saveError.message || 'Error completing request');
+    } finally {
+      setCompletingId(null);
+    }
+  };
+
   const closeChatModal = () => {
     setShowChatModal(false);
     setSelectedTransaction(null);
@@ -141,11 +173,21 @@ const MySales = () => {
       {!isLoading && !error && (
         <Row className="g-4">
           {transactions.length > 0 ? (
-            transactions.map((transaction) => (
-              <Col xs={12} md={6} lg={4} key={transaction.id}>
-                <TransactionCard transaction={transaction} onChat={openChatModal} />
-              </Col>
-            ))
+            transactions.map((transaction) => {
+              const normalizedStatus = `${transaction.status || ''}`.toLowerCase();
+
+              return (
+                <Col xs={12} md={6} lg={4} key={transaction.id}>
+                  <TransactionCard
+                    transaction={transaction}
+                    onChat={openChatModal}
+                    onComplete={handleComplete}
+                    showComplete={normalizedStatus === 'accepted'}
+                    completeDisabled={completingId === transaction.id}
+                  />
+                </Col>
+              );
+            })
           ) : (
             <Col xs={12}>
               <div

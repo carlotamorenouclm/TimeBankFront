@@ -1,6 +1,7 @@
 // User purchases view, keeping the same chat flow as history.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Form, Modal } from 'react-bootstrap';
+import RatingStars from '../components/RatingStars';
 import TransactionCard from '../components/TransactionCard';
 import {
   getChatMessages,
@@ -8,7 +9,8 @@ import {
   sendChatMessage,
   sendThreadMessage,
 } from '../services/chat/ChatService';
-import { getHistory } from '../services/portal/PortalService';
+import { completeRequest, getHistory, submitReview } from '../services/portal/PortalService';
+import { getAuthenticatedUserId } from '../utils/AuthHelpers';
 
 const MyPurchases = () => {
   const [transactions, setTransactions] = useState([]);
@@ -21,6 +23,12 @@ const MyPurchases = () => {
   const [chatError, setChatError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [completingId, setCompletingId] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewTransaction, setReviewTransaction] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: '5', comment: '' });
+  const [reviewError, setReviewError] = useState('');
+  const [isReviewSaving, setIsReviewSaving] = useState(false);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -97,6 +105,90 @@ const MyPurchases = () => {
     }
   };
 
+  const openReviewModal = (transaction) => {
+    setReviewTransaction(transaction);
+    setReviewForm({ rating: '5', comment: '' });
+    setReviewError('');
+    setShowReviewModal(true);
+  };
+
+  const closeReviewModal = () => {
+    setShowReviewModal(false);
+    setReviewTransaction(null);
+    setReviewForm({ rating: '5', comment: '' });
+    setReviewError('');
+  };
+
+  const handleComplete = async (transaction) => {
+    const requestId = transaction.request_id;
+    if (!requestId) {
+      setError('Missing request id for this transaction.');
+      return;
+    }
+
+    try {
+      setCompletingId(transaction.id);
+      setError('');
+      const response = await completeRequest(requestId);
+      if (response?.transactions) {
+        setTransactions(
+          response.transactions.filter((item) => item.type === 'Purchase'),
+        );
+      } else {
+        setTransactions((prev) =>
+          prev.map((item) =>
+            item.id === transaction.id
+              ? { ...item, status: 'completed' }
+              : item,
+          ),
+        );
+      }
+    } catch (saveError) {
+      setError(saveError.message || 'Error completing request');
+    } finally {
+      setCompletingId(null);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewTransaction) return;
+
+    const ratingValue = Number(reviewForm.rating);
+    if (!ratingValue || ratingValue < 1 || ratingValue > 5) {
+      setReviewError('Rating must be between 1 and 5.');
+      return;
+    }
+
+    const reviewerId = getAuthenticatedUserId();
+    const revieweeId =
+      reviewTransaction.other_user_id ||
+      reviewTransaction.otherUserId ||
+      reviewTransaction.provider_id ||
+      reviewTransaction.seller_id ||
+      null;
+
+    if (!reviewerId || !revieweeId) {
+      setReviewError('Missing user information to submit the review.');
+      return;
+    }
+
+    try {
+      setIsReviewSaving(true);
+      setReviewError('');
+      await submitReview({
+        rating: ratingValue,
+        comment: reviewForm.comment.trim(),
+        id_user: reviewerId,
+        id_other_user: revieweeId,
+      });
+      closeReviewModal();
+    } catch (saveError) {
+      setReviewError(saveError.message || 'Error submitting review');
+    } finally {
+      setIsReviewSaving(false);
+    }
+  };
+
   const closeChatModal = () => {
     setShowChatModal(false);
     setSelectedTransaction(null);
@@ -141,11 +233,23 @@ const MyPurchases = () => {
       {!isLoading && !error && (
         <Row className="g-4">
           {transactions.length > 0 ? (
-            transactions.map((transaction) => (
-              <Col xs={12} md={6} lg={4} key={transaction.id}>
-                <TransactionCard transaction={transaction} onChat={openChatModal} />
-              </Col>
-            ))
+            transactions.map((transaction) => {
+              const normalizedStatus = `${transaction.status || ''}`.toLowerCase();
+
+              return (
+                <Col xs={12} md={6} lg={4} key={transaction.id}>
+                  <TransactionCard
+                    transaction={transaction}
+                    onChat={openChatModal}
+                    onComplete={handleComplete}
+                    onReview={openReviewModal}
+                    showComplete={normalizedStatus === 'accepted'}
+                    showReview={normalizedStatus === 'completed'}
+                    completeDisabled={completingId === transaction.id}
+                  />
+                </Col>
+              );
+            })
           ) : (
             <Col xs={12}>
               <div
@@ -250,6 +354,46 @@ const MyPurchases = () => {
               disabled={isChatSaving || !chatDraft.trim()}
             >
               {isChatSaving ? 'Sending...' : 'Send'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showReviewModal} onHide={closeReviewModal} centered>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-4">Leave a review</h4>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Rating</Form.Label>
+            <RatingStars
+              value={reviewForm.rating}
+              onChange={(nextValue) =>
+                setReviewForm((prev) => ({ ...prev, rating: nextValue }))
+              }
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-4">
+            <Form.Label>Comment</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={reviewForm.comment}
+              onChange={(event) =>
+                setReviewForm((prev) => ({ ...prev, comment: event.target.value }))
+              }
+              placeholder="Share your experience"
+            />
+          </Form.Group>
+
+          {reviewError && <div className="alert alert-danger">{reviewError}</div>}
+
+          <div className="d-flex justify-content-end gap-2">
+            <Button variant="secondary" onClick={closeReviewModal}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmitReview} disabled={isReviewSaving}>
+              {isReviewSaving ? 'Saving...' : 'Submit review'}
             </Button>
           </div>
         </Modal.Body>

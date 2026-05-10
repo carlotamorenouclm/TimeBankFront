@@ -2,23 +2,36 @@
 import React from 'react';
 import { Card, Badge, Button } from 'react-bootstrap';
 
-const TransactionCard = ({ transaction, onChat }) => {
+const TransactionCard = ({
+  transaction,
+  onChat,
+  onComplete,
+  onReview,
+  showComplete,
+  showReview,
+  completeDisabled,
+}) => {
   const otherUser = transaction.otherUser || transaction.other_user || '-';
+  const normalizedStatus = `${transaction.status || ''}`.toLowerCase();
 
   const getStatusBadge = (status) => {
+    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '-';
+
     switch (status) {
-      case 'Completed':
-        return <Badge bg="success">{status}</Badge>;
-      case 'Pending':
+      case 'completed':
+        return <Badge bg="success">{label}</Badge>;
+      case 'pending':
         return (
           <Badge bg="warning" text="dark">
-            {status}
+            {label}
           </Badge>
         );
-      case 'Cancelled':
-        return <Badge bg="danger">{status}</Badge>;
+      case 'cancelled':
+        return <Badge bg="danger">{label}</Badge>;
+      case 'accepted':
+        return <Badge bg="primary">{label}</Badge>;
       default:
-        return <Badge bg="secondary">{status}</Badge>;
+        return <Badge bg="secondary">{label}</Badge>;
     }
   };
 
@@ -37,7 +50,7 @@ const TransactionCard = ({ transaction, onChat }) => {
           <div>
             <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
               <h5 className="fw-bold mb-0">{transaction.service}</h5>
-              {getStatusBadge(transaction.status)}
+              {getStatusBadge(normalizedStatus)}
               {transaction.unread_count > 0 && (
                 <span
                   className="d-inline-flex align-items-center justify-content-center fw-bold"
@@ -89,13 +102,34 @@ const TransactionCard = ({ transaction, onChat }) => {
               {amountLabel}
             </div>
 
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => onChat?.(transaction)}
-            >
-              Chat
-            </Button>
+            <div className="d-flex gap-2 flex-wrap">
+              {showComplete && (
+                <Button
+                  variant="success"
+                  size="sm"
+                  onClick={() => onComplete?.(transaction)}
+                  disabled={completeDisabled}
+                >
+                  Mark completed
+                </Button>
+              )}
+              {showReview && (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => onReview?.(transaction)}
+                >
+                  Review
+                </Button>
+              )}
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => onChat?.(transaction)}
+              >
+                Chat
+              </Button>
+            </div>
           </div>
         </div>
       </Card.Body>
