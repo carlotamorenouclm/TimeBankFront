@@ -59,13 +59,15 @@ const UserPortalLayout = () => {
               borderRight: '1px solid rgba(0,0,0,0.08)',
             }}
           >
-            <SidebarUserCard
-              avatarImage={avatarImage}
-              name={profile.name}
-              email={profile.email}
-              linkEnabled={linkEnabled}
-            />
-            <UserSidebarNav />
+            <div className="user-sidebar-sticky">
+              <SidebarUserCard
+                avatarImage={avatarImage}
+                name={profile.name}
+                email={profile.email}
+                linkEnabled={linkEnabled}
+              />
+              <UserSidebarNav />
+            </div>
           </Col>
 
           <Col xs={12} md={9} lg={10} className="p-4 p-md-5">
