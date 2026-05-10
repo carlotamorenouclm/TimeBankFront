@@ -1,4 +1,3 @@
-// User profile page where the authenticated user can review, edit, or delete the account.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -163,7 +162,12 @@ const ProfileUser = () => {
                 <Col md={12}>
                   <Form.Group>
                     <Form.Label>Email</Form.Label>
-                    <Form.Control value={profile.email} readOnly disabled />
+                     <Form.Control 
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          />
                   </Form.Group>
                 </Col>
                 <Col md={12}>
