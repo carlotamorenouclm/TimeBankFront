@@ -2,11 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
-import { getServiceImage, serviceImageOptions } from '../constants/serviceImages';
+import { getServiceImage } from '../constants/serviceImages';
 import {
-  createServiceOffer,
   createServiceRequest,
-  deleteServiceOffer,
   getDashboardServices,
 } from '../services/portal/PortalService';
 
@@ -19,33 +17,14 @@ const initialRequestForm = {
   message: '',
 };
 
-const initialServiceForm = {
-  title: '',
-  description: '',
-  availability: '',
-  homeService: true,
-  street: '',
-  streetNumber: '',
-  floor: '',
-  door: '',
-  extra: '',
-  price: '5',
-  imageKey: 'computer',
-};
-
 const DashboardUser = () => {
   const [services, setServices] = useState([]);
-  const [myServices, setMyServices] = useState([]);
-  const [activeTab, setActiveTab] = useState('buy');
   const [selectedService, setSelectedService] = useState(null);
   const [requestForm, setRequestForm] = useState(initialRequestForm);
-  const [serviceForm, setServiceForm] = useState(initialServiceForm);
   const [purchaseResult, setPurchaseResult] = useState(null);
   const [showRequestModal, setShowRequestModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [showPublishModal, setShowPublishModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
@@ -57,7 +36,6 @@ const DashboardUser = () => {
 
       const dashboardData = await getDashboardServices();
       setServices(dashboardData?.services || []);
-      setMyServices(dashboardData?.my_services || []);
     } catch (loadError) {
       setError(loadError.message || 'Error loading services');
     } finally {
@@ -79,36 +57,6 @@ const DashboardUser = () => {
   const handleRequestFormChange = (event) => {
     const { name, value } = event.target;
     setRequestForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleServiceFormChange = (event) => {
-    const { name, type, value, checked } = event.target;
-    const nextValue = type === 'checkbox' ? checked : value;
-
-    setServiceForm((prev) => {
-      const nextForm = { ...prev, [name]: nextValue };
-      if (name === 'homeService' && checked) {
-        nextForm.street = '';
-        nextForm.streetNumber = '';
-        nextForm.floor = '';
-        nextForm.door = '';
-      }
-      return nextForm;
-    });
-  };
-
-  const openPublishModal = () => {
-    // Reset the form so every new service starts from a clean draft.
-    setServiceForm(initialServiceForm);
-    setError('');
-    setShowPublishModal(true);
-  };
-
-  const openDeleteModal = (service) => {
-    // Keep the selected owned service so the confirmation modal can delete it.
-    setSelectedService(service);
-    setError('');
-    setShowDeleteModal(true);
   };
 
   const handleContinueToPayment = () => {
@@ -167,100 +115,10 @@ const DashboardUser = () => {
     setPurchaseResult(null);
   };
 
-  const closeDeleteModal = () => {
-    setShowDeleteModal(false);
-    setSelectedService(null);
-  };
-
-  const handlePublishService = async () => {
-    // Validate the minimum fields before sending the new service to the backend.
-    if (
-      !serviceForm.title ||
-      !serviceForm.description ||
-      !serviceForm.availability ||
-      !serviceForm.price
-    ) {
-      setError('Please complete title, description, availability, and price.');
-      return;
-    }
-
-    if (!serviceForm.homeService && (!serviceForm.street || !serviceForm.streetNumber)) {
-      setError('Please complete the address when the service is not at home.');
-      return;
-    }
-
-    try {
-      setIsSaving(true);
-      setError('');
-
-      await createServiceOffer({
-        title: serviceForm.title,
-        description: serviceForm.description,
-        availability: serviceForm.availability,
-        home_service: serviceForm.homeService,
-        street: serviceForm.homeService ? null : serviceForm.street,
-        street_number: serviceForm.homeService ? null : serviceForm.streetNumber,
-        floor: serviceForm.homeService ? null : serviceForm.floor || null,
-        door: serviceForm.homeService ? null : serviceForm.door || null,
-        extra: serviceForm.extra || null,
-        price: Number(serviceForm.price),
-        image_key: serviceForm.imageKey,
-      });
-
-      setShowPublishModal(false);
-      setServiceForm(initialServiceForm);
-      setActiveTab('sell');
-      await loadDashboard();
-    } catch (saveError) {
-      setError(saveError.message || 'Error publishing service');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleDeleteService = async () => {
-    if (!selectedService) return;
-
-    try {
-      setIsSaving(true);
-      setError('');
-      await deleteServiceOffer(selectedService.id);
-      setShowDeleteModal(false);
-      setSelectedService(null);
-      await loadDashboard();
-    } catch (saveError) {
-      setError(saveError.message || 'Error deleting service');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const servicesToRender = activeTab === 'buy' ? services : myServices;
-
   return (
     <>
       <div className="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-        <h2 className="fw-bold mb-0">
-          {activeTab === 'buy' ? 'Available Services' : 'My Published Services'}
-        </h2>
-
-        <div className="d-flex gap-2">
-          <Button
-            variant={activeTab === 'buy' ? 'primary' : 'outline-primary'}
-            onClick={() => setActiveTab('buy')}
-          >
-            Buy
-          </Button>
-          <Button
-            variant={activeTab === 'sell' ? 'primary' : 'outline-primary'}
-            onClick={() => setActiveTab('sell')}
-          >
-            Sell
-          </Button>
-          <Button variant="success" onClick={openPublishModal}>
-            Publish service
-          </Button>
-        </div>
+        <h2 className="fw-bold mb-0">Available Services</h2>
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
@@ -268,8 +126,8 @@ const DashboardUser = () => {
 
       {!isLoading && !error && (
         <Row className="g-4">
-          {servicesToRender.length > 0 ? (
-            servicesToRender.map((service) => (
+          {services.length > 0 ? (
+            services.map((service) => (
               <Col xs={12} key={service.id}>
                 <ServiceCard
                   title={service.title}
@@ -287,11 +145,9 @@ const DashboardUser = () => {
                     .join(' · ')}
                   price={`${service.price} coins`}
                   image={getServiceImage(service.image_key)}
-                  actionLabel={activeTab === 'buy' ? 'Request' : 'Delete'}
+                  actionLabel="Request"
                   actionDisabled={false}
-                  onAction={() =>
-                    activeTab === 'buy' ? openRequestModal(service) : openDeleteModal(service)
-                  }
+                  onAction={() => openRequestModal(service)}
                 />
               </Col>
             ))
@@ -299,12 +155,10 @@ const DashboardUser = () => {
             <Col xs={12}>
               <div className="bg-white shadow-sm text-center p-5" style={{ borderRadius: '16px' }}>
                 <h5 className="fw-bold mb-2">
-                  {activeTab === 'buy' ? 'No services available' : 'No published services'}
+                  No services available
                 </h5>
                 <p className="text-muted mb-0">
-                  {activeTab === 'buy'
-                    ? 'Register another user or create more offers to test purchases.'
-                    : 'This user does not own any service yet.'}
+                  Register another user or create more offers to test purchases.
                 </p>
               </div>
             </Col>
@@ -403,203 +257,6 @@ const DashboardUser = () => {
                 Continue
               </Button>
             </div>
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      <Modal show={showPublishModal} onHide={() => setShowPublishModal(false)} centered>
-        <Modal.Body style={{ padding: '2rem', backgroundColor: '#dbe8f7' }}>
-          <h4 className="fw-bold mb-4">Publish a new service</h4>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              name="title"
-              value={serviceForm.title}
-              onChange={handleServiceFormChange}
-              placeholder="Computer setup"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={3}
-              name="description"
-              value={serviceForm.description}
-              onChange={handleServiceFormChange}
-              placeholder="I help you install software, printers, and home devices."
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Availability</Form.Label>
-            <Form.Control
-              name="availability"
-              value={serviceForm.availability}
-              onChange={handleServiceFormChange}
-              placeholder="Weekdays after 18:00"
-            />
-          </Form.Group>
-
-          <Form.Group className="mb-3">
-            <Form.Label>Home service?</Form.Label>
-            <div className="d-flex gap-4">
-              <Form.Check
-                inline
-                type="radio"
-                id="service-home-yes"
-                label="Yes"
-                name="homeService"
-                checked={serviceForm.homeService}
-                onChange={() =>
-                  setServiceForm((prev) => ({
-                    ...prev,
-                    homeService: true,
-                    street: '',
-                    streetNumber: '',
-                    floor: '',
-                    door: '',
-                  }))
-                }
-              />
-              <Form.Check
-                inline
-                type="radio"
-                id="service-home-no"
-                label="No"
-                name="homeService"
-                checked={!serviceForm.homeService}
-                onChange={() =>
-                  setServiceForm((prev) => ({
-                    ...prev,
-                    homeService: false,
-                  }))
-                }
-              />
-            </div>
-          </Form.Group>
-
-          {!serviceForm.homeService && (
-            <Row className="g-3 mb-3">
-              <Col md={12}>
-                <Form.Group>
-                  <Form.Label>Street</Form.Label>
-                  <Form.Control
-                    name="street"
-                    value={serviceForm.street}
-                    onChange={handleServiceFormChange}
-                    placeholder="Main Street"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Number</Form.Label>
-                  <Form.Control
-                    name="streetNumber"
-                    value={serviceForm.streetNumber}
-                    onChange={handleServiceFormChange}
-                    placeholder="12"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Floor</Form.Label>
-                  <Form.Control
-                    name="floor"
-                    value={serviceForm.floor}
-                    onChange={handleServiceFormChange}
-                    placeholder="2"
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Door</Form.Label>
-                  <Form.Control
-                    name="door"
-                    value={serviceForm.door}
-                    onChange={handleServiceFormChange}
-                    placeholder="B"
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          )}
-
-          <Form.Group className="mb-3">
-            <Form.Label>Extra details</Form.Label>
-            <Form.Control
-              name="extra"
-              value={serviceForm.extra}
-              onChange={handleServiceFormChange}
-              placeholder="Home service or online support"
-            />
-          </Form.Group>
-
-          <Row className="g-3 mb-4">
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Price</Form.Label>
-                <Form.Control
-                  type="number"
-                  min="1"
-                  max="1000"
-                  name="price"
-                  value={serviceForm.price}
-                  onChange={handleServiceFormChange}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group>
-                <Form.Label>Image</Form.Label>
-                <Form.Select
-                  name="imageKey"
-                  value={serviceForm.imageKey}
-                  onChange={handleServiceFormChange}
-                >
-                  {serviceImageOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
-
-          <div className="d-flex justify-content-end gap-2">
-            <Button variant="secondary" onClick={() => setShowPublishModal(false)}>
-              Cancel
-            </Button>
-            <Button variant="success" onClick={handlePublishService} disabled={isSaving}>
-              {isSaving ? 'Publishing...' : 'Publish'}
-            </Button>
-          </div>
-        </Modal.Body>
-      </Modal>
-
-      <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
-        <Modal.Body style={{ padding: '2rem', backgroundColor: '#f8f9fc' }}>
-          <h4 className="fw-bold mb-3">Delete service</h4>
-          <p className="mb-4">
-            Are you sure you want to delete <strong>{selectedService?.title}</strong>?
-          </p>
-          <p className="text-muted small mb-4">
-            Services with existing requests cannot be deleted.
-          </p>
-
-          <div className="d-flex justify-content-end gap-2">
-            <Button variant="secondary" onClick={closeDeleteModal}>
-              Cancel
-            </Button>
-            <Button variant="danger" onClick={handleDeleteService} disabled={isSaving}>
-              {isSaving ? 'Deleting...' : 'Delete'}
-            </Button>
           </div>
         </Modal.Body>
       </Modal>
