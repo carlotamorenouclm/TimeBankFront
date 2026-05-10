@@ -22,6 +22,8 @@ TimeBank lets users exchange services with other people using a virtual currency
 - User inbox to accept or reject received requests.
 - Wallet balance and recharge flow.
 - Transaction history filters.
+- Chat from transaction history between buyer and seller.
+- Unread message badge on history transactions.
 - User profile edition and account deletion.
 - Admin dashboard for viewing users and administrators.
 
@@ -121,6 +123,8 @@ The frontend uses `VITE_API_URL` as the API base URL and consumes these main bac
 - `/portal/inbox` for received requests.
 - `/portal/wallet` for balance and recharges.
 - `/portal/history` for transaction history.
+- `/chat/requests/{request_id}/messages` for request-linked chat messages.
+- `/chat/threads/{thread_key}/messages` for history-linked chat messages.
 - `/admins` and `/users` for administration views.
 
 Protected requests include this header:
@@ -169,6 +173,15 @@ Wallet:
 2. Review current balance and previous recharges.
 3. Choose a quick recharge amount or enter a custom amount.
 4. Confirm the recharge.
+
+History chat:
+
+1. Open `History`.
+2. Use the `Purchases`, `Sales`, or `All` filters to find a transaction.
+3. Click `Chat` on a transaction card to talk with the other user.
+4. Messages are stored in the backend and can be read by both buyer and seller.
+5. When a transaction has unread messages, a numbered badge appears next to its `Pending` or `Completed` status.
+6. Opening the chat marks received messages as read and clears the badge for that transaction.
 
 Profile:
 
