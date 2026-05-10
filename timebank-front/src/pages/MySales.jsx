@@ -1,4 +1,4 @@
-// User history view with filters for purchases, sales, or the full timeline.
+// User sales view, keeping the same chat flow as history.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Form, Modal } from 'react-bootstrap';
 import TransactionCard from '../components/TransactionCard';
@@ -10,9 +10,8 @@ import {
 } from '../services/chat/ChatService';
 import { getHistory } from '../services/portal/PortalService';
 
-const History = () => {
+const MySales = () => {
   const [transactions, setTransactions] = useState([]);
-  const [filter, setFilter] = useState('all');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
@@ -30,7 +29,8 @@ const History = () => {
         setError('');
 
         const historyData = await getHistory();
-        setTransactions(historyData?.transactions || []);
+        const items = historyData?.transactions || [];
+        setTransactions(items.filter((transaction) => transaction.type === 'Sale'));
       } catch (loadError) {
         setError(loadError.message || 'Error loading history');
       } finally {
@@ -60,12 +60,6 @@ const History = () => {
     const intervalId = window.setInterval(refreshChat, 3000);
     return () => window.clearInterval(intervalId);
   }, [showChatModal, selectedTransaction?.chat_key, selectedTransaction?.request_id]);
-
-  const filteredTransactions = transactions.filter((transaction) => {
-    if (filter === 'purchases') return transaction.type === 'Purchase';
-    if (filter === 'sales') return transaction.type === 'Sale';
-    return true;
-  });
 
   const clearUnreadCount = (transactionId) => {
     setTransactions((prev) =>
@@ -141,38 +135,13 @@ const History = () => {
 
   return (
     <>
-      <div className="mb-4">
-        <div className="d-flex gap-3">
-          <Button
-            variant={filter === 'purchases' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('purchases')}
-          >
-            Purchases
-          </Button>
-
-          <Button
-            variant={filter === 'sales' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('sales')}
-          >
-            Sales
-          </Button>
-
-          <Button
-            variant={filter === 'all' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </Button>
-        </div>
-      </div>
-
       {isLoading && <p className="text-muted">Loading history...</p>}
       {error && <div className="alert alert-danger">{error}</div>}
 
       {!isLoading && !error && (
         <Row className="g-4">
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((transaction) => (
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => (
               <Col xs={12} md={6} lg={4} key={transaction.id}>
                 <TransactionCard transaction={transaction} onChat={openChatModal} />
               </Col>
@@ -183,10 +152,8 @@ const History = () => {
                 className="bg-white shadow-sm text-center p-5"
                 style={{ borderRadius: '16px' }}
               >
-                <h5 className="fw-bold mb-2">No transactions found</h5>
-                <p className="text-muted mb-0">
-                  No transactions match the selected filter.
-                </p>
+                <h5 className="fw-bold mb-2">No sales found</h5>
+                <p className="text-muted mb-0">No sales are available yet.</p>
               </div>
             </Col>
           )}
@@ -291,4 +258,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default MySales;
