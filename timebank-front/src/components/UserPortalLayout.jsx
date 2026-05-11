@@ -8,7 +8,12 @@ import { getAvatarImage } from '../constants/avatarOptions';
 import { getPortalSummary } from '../services/portal/PortalService';
 
 const UserPortalLayout = () => {
-  const [profile, setProfile] = useState({ name: '', email: '', avatar_key: null });
+  const [profile, setProfile] = useState({
+    name: '',
+    email: '',
+    avatar_key: null,
+    pending_inbox_count: 0,
+  });
   const [error, setError] = useState('');
   const { pathname } = useLocation();
 
@@ -28,9 +33,11 @@ const UserPortalLayout = () => {
     };
 
     loadSummary();
+    window.addEventListener('portal-summary-refresh', loadSummary);
 
     return () => {
       isMounted = false;
+      window.removeEventListener('portal-summary-refresh', loadSummary);
     };
   }, []);
 
@@ -66,7 +73,7 @@ const UserPortalLayout = () => {
                 email={profile.email}
                 linkEnabled={linkEnabled}
               />
-              <UserSidebarNav />
+              <UserSidebarNav inboxCount={profile.pending_inbox_count || 0} />
             </div>
           </Col>
 

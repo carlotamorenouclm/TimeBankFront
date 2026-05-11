@@ -65,6 +65,7 @@ const Inbox = () => {
       setError('');
       const inboxData = await acceptInboxRequest(selectedRequest.id, acceptForm.clarification);
       setRequests(normalizeRequests(inboxData?.requests));
+      window.dispatchEvent(new Event('portal-summary-refresh'));
       setShowAcceptModal(false);
       setSelectedRequest(null);
     } catch (saveError) {
@@ -82,6 +83,7 @@ const Inbox = () => {
       setError('');
       const inboxData = await rejectInboxRequest(selectedRequest.id, rejectReason);
       setRequests(normalizeRequests(inboxData?.requests));
+      window.dispatchEvent(new Event('portal-summary-refresh'));
       setShowRejectModal(false);
       setSelectedRequest(null);
     } catch (saveError) {

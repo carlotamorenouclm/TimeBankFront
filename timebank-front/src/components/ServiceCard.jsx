@@ -27,20 +27,19 @@ const ServiceCard = ({
       <Row className="g-0 align-items-stretch">
         
         {/* IMAGE */}
-        <Col xs={12} md={3} style={{ minHeight: '200px' }}>
-          <img
-            src={image}
-            alt={title}
-            className="w-100 h-100"
-            style={{
-              objectFit: 'cover',
-              borderTopLeftRadius: '24px',
-              borderBottomLeftRadius: '24px'
-            }}
-            onError={(e) => {
-              e.target.src = 'https://via.placeholder.com/400x250?text=Service+Image';
-            }}
-          />
+        <Col xs={12} md={3} style={{ minHeight: '200px', backgroundColor: '#eef3f8' }}>
+          {image && (
+            <img
+              src={image}
+              alt={title}
+              className="w-100 h-100"
+              style={{
+                objectFit: 'cover',
+                borderTopLeftRadius: '24px',
+                borderBottomLeftRadius: '24px'
+              }}
+            />
+          )}
         </Col>
 
         {/* INFO */}

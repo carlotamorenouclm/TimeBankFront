@@ -19,7 +19,7 @@ const activeStyle = {
 const normalizePath = (pathname) =>
   pathname !== '/' && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 
-const UserSidebarNav = () => {
+const UserSidebarNav = ({ inboxCount = 0 }) => {
   const { pathname } = useLocation();
   const currentPath = normalizePath(pathname);
 
@@ -33,10 +33,13 @@ const UserSidebarNav = () => {
             key={item.to}
             as={Link}
             to={item.to}
-            className={`px-4 py-3 fw-semibold${isActive ? '' : ' text-dark'}`}
+            className={`px-4 py-3 fw-semibold d-flex align-items-center justify-content-between${isActive ? '' : ' text-dark'}`}
             style={isActive ? activeStyle : undefined}
           >
-            {item.label}
+            <span>{item.label}</span>
+            {item.to === '/inbox' && inboxCount > 0 && (
+              <span className="inbox-count-badge">{inboxCount}</span>
+            )}
           </Nav.Link>
         );
       })}

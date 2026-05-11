@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
-import { getServiceImage, serviceImageOptions } from '../constants/serviceImages';
+import { getServiceImage } from '../constants/serviceImages';
 import { createServiceOffer, deleteServiceOffer, getDashboardServices } from '../services/portal/PortalService';
 
 const initialServiceForm = {
@@ -15,8 +15,12 @@ const initialServiceForm = {
   door: '',
   extra: '',
   price: '5',
-  imageKey: 'computer',
+  imageData: '',
+  imageName: '',
 };
+
+const MAX_SERVICE_IMAGE_SIZE_MB = 8;
+const MAX_SERVICE_IMAGE_SIZE = MAX_SERVICE_IMAGE_SIZE_MB * 1024 * 1024;
 
 const MyServices = () => {
   const [myServices, setMyServices] = useState([]);
@@ -62,6 +66,42 @@ const MyServices = () => {
     });
   };
 
+  const handleServiceImageChange = (event) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      setServiceForm((prev) => ({ ...prev, imageData: '', imageName: '' }));
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please choose a valid image file.');
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > MAX_SERVICE_IMAGE_SIZE) {
+      setError(`Please choose an image smaller than ${MAX_SERVICE_IMAGE_SIZE_MB} MB.`);
+      event.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setServiceForm((prev) => ({
+        ...prev,
+        imageData: reader.result,
+        imageName: file.name,
+      }));
+      setError('');
+    };
+    reader.onerror = () => {
+      setError('The image could not be loaded. Please try another file.');
+      event.target.value = '';
+    };
+    reader.readAsDataURL(file);
+  };
+
   const openPublishModal = () => {
     // Reset the form so every new service starts from a clean draft.
     setServiceForm(initialServiceForm);
@@ -87,9 +127,10 @@ const MyServices = () => {
       !serviceForm.title ||
       !serviceForm.description ||
       !serviceForm.availability ||
-      !serviceForm.price
+      !serviceForm.price ||
+      !serviceForm.imageData
     ) {
-      setError('Please complete title, description, availability, and price.');
+      setError('Please complete title, description, availability, price, and image.');
       return;
     }
 
@@ -113,7 +154,7 @@ const MyServices = () => {
         door: serviceForm.homeService ? null : serviceForm.door || null,
         extra: serviceForm.extra || null,
         price: Number(serviceForm.price),
-        image_key: serviceForm.imageKey,
+        image_key: serviceForm.imageData,
       });
 
       setShowPublishModal(false);
@@ -346,20 +387,34 @@ const MyServices = () => {
             <Col md={6}>
               <Form.Group>
                 <Form.Label>Image</Form.Label>
-                <Form.Select
-                  name="imageKey"
-                  value={serviceForm.imageKey}
-                  onChange={handleServiceFormChange}
-                >
-                  {serviceImageOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Form.Select>
+                <Form.Control
+                  type="file"
+                  accept="image/*"
+                  onChange={handleServiceImageChange}
+                />
+                {serviceForm.imageName && (
+                  <Form.Text className="text-muted">
+                    {serviceForm.imageName}
+                  </Form.Text>
+                )}
               </Form.Group>
             </Col>
           </Row>
+
+          {serviceForm.imageData && (
+            <div className="mb-4">
+              <img
+                src={serviceForm.imageData}
+                alt="Service preview"
+                className="w-100"
+                style={{
+                  maxHeight: '220px',
+                  objectFit: 'cover',
+                  borderRadius: '12px',
+                }}
+              />
+            </div>
+          )}
 
           <div className="d-flex justify-content-end gap-2">
             <Button variant="secondary" onClick={() => setShowPublishModal(false)}>

@@ -28,6 +28,8 @@ const TransactionCard = ({
         );
       case 'cancelled':
         return <Badge bg="danger">{label}</Badge>;
+      case 'rejected':
+        return <Badge bg="danger">{label}</Badge>;
       case 'accepted':
         return <Badge bg="primary">{label}</Badge>;
       default:
@@ -90,13 +92,19 @@ const TransactionCard = ({
                 <strong>Provider note:</strong> {transaction.clarification}
               </p>
             )}
+
+            {transaction.reject_reason && (
+              <p className="mb-3 text-muted">
+                <strong>Reject reason:</strong> {transaction.reject_reason}
+              </p>
+            )}
           </div>
 
           <div className="d-flex justify-content-between align-items-center gap-3 flex-wrap">
             <div
               className="fw-bold fs-5"
               style={{
-                color: transaction.amount >= 0 ? '#198754' : '#dc3545',
+                color: transaction.amount > 0 ? '#198754' : '#dc3545',
               }}
             >
               {amountLabel}
