@@ -1,6 +1,7 @@
-// User history view with filters for purchases, sales, or the full timeline.
+// User purchases view, keeping the same chat flow as history.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Form, Modal } from 'react-bootstrap';
+import RatingStars from '../components/RatingStars';
 import TransactionCard from '../components/TransactionCard';
 import {
   getChatMessages,
@@ -8,11 +9,11 @@ import {
   sendChatMessage,
   sendThreadMessage,
 } from '../services/chat/ChatService';
-import { getHistory } from '../services/portal/PortalService';
+import { completeRequest, getHistory, submitReview } from '../services/portal/PortalService';
+import { getAuthenticatedUserId } from '../utils/AuthHelpers';
 
-const History = () => {
+const MyPurchases = () => {
   const [transactions, setTransactions] = useState([]);
-  const [filter, setFilter] = useState('all');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showChatModal, setShowChatModal] = useState(false);
   const [chatMessages, setChatMessages] = useState([]);
@@ -22,6 +23,14 @@ const History = () => {
   const [chatError, setChatError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [completingId, setCompletingId] = useState(null);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewTransaction, setReviewTransaction] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: '5', comment: '' });
+  const [reviewError, setReviewError] = useState('');
+  const [isReviewSaving, setIsReviewSaving] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState('');
+  const [showReviewSuccessModal, setShowReviewSuccessModal] = useState(false);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -30,7 +39,8 @@ const History = () => {
         setError('');
 
         const historyData = await getHistory();
-        setTransactions(historyData?.transactions || []);
+        const items = historyData?.transactions || [];
+        setTransactions(items.filter((transaction) => transaction.type === 'Purchase'));
       } catch (loadError) {
         setError(loadError.message || 'Error loading history');
       } finally {
@@ -60,12 +70,6 @@ const History = () => {
     const intervalId = window.setInterval(refreshChat, 3000);
     return () => window.clearInterval(intervalId);
   }, [showChatModal, selectedTransaction?.chat_key, selectedTransaction?.request_id]);
-
-  const filteredTransactions = transactions.filter((transaction) => {
-    if (filter === 'purchases') return transaction.type === 'Purchase';
-    if (filter === 'sales') return transaction.type === 'Sale';
-    return true;
-  });
 
   const clearUnreadCount = (transactionId) => {
     setTransactions((prev) =>
@@ -100,6 +104,93 @@ const History = () => {
       setChatError(loadError.message || 'Error loading messages');
     } finally {
       setIsChatLoading(false);
+    }
+  };
+
+  const openReviewModal = (transaction) => {
+    setReviewTransaction(transaction);
+    setReviewForm({ rating: '5', comment: '' });
+    setReviewError('');
+    setReviewSuccess('');
+    setShowReviewSuccessModal(false);
+    setShowReviewModal(true);
+  };
+
+  const closeReviewModal = () => {
+    setShowReviewModal(false);
+    setReviewTransaction(null);
+    setReviewForm({ rating: '5', comment: '' });
+    setReviewError('');
+  };
+
+  const handleComplete = async (transaction) => {
+    const requestId = transaction.request_id;
+    if (!requestId) {
+      setError('Missing request id for this transaction.');
+      return;
+    }
+
+    try {
+      setCompletingId(transaction.id);
+      setError('');
+      const response = await completeRequest(requestId);
+      if (response?.transactions) {
+        setTransactions(
+          response.transactions.filter((item) => item.type === 'Purchase'),
+        );
+      } else {
+        setTransactions((prev) =>
+          prev.map((item) =>
+            item.id === transaction.id
+              ? { ...item, status: 'completed' }
+              : item,
+          ),
+        );
+      }
+    } catch (saveError) {
+      setError(saveError.message || 'Error completing request');
+    } finally {
+      setCompletingId(null);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewTransaction) return;
+
+    const ratingValue = Number(reviewForm.rating);
+    if (!ratingValue || ratingValue < 1 || ratingValue > 5) {
+      setReviewError('Rating must be between 1 and 5.');
+      return;
+    }
+
+    const reviewerId = getAuthenticatedUserId();
+    const revieweeId =
+      reviewTransaction.other_user_id ||
+      reviewTransaction.otherUserId ||
+      reviewTransaction.provider_id ||
+      reviewTransaction.seller_id ||
+      null;
+
+    if (!reviewerId || !revieweeId) {
+      setReviewError('Missing user information to submit the review.');
+      return;
+    }
+
+    try {
+      setIsReviewSaving(true);
+      setReviewError('');
+      await submitReview({
+        rating: ratingValue,
+        comment: reviewForm.comment.trim(),
+        transaction_id: reviewTransaction.id,
+      });
+      setReviewSuccess('Review submitted successfully.');
+      setShowReviewSuccessModal(true);
+      closeReviewModal();
+    } catch (saveError) {
+      setReviewError(saveError.message || 'Error submitting review');
+    } finally {
+      setIsReviewSaving(false);
     }
   };
 
@@ -141,52 +232,37 @@ const History = () => {
 
   return (
     <>
-      <div className="mb-4">
-        <div className="d-flex gap-3">
-          <Button
-            variant={filter === 'purchases' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('purchases')}
-          >
-            Purchases
-          </Button>
-
-          <Button
-            variant={filter === 'sales' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('sales')}
-          >
-            Sales
-          </Button>
-
-          <Button
-            variant={filter === 'all' ? 'primary' : 'outline-primary'}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </Button>
-        </div>
-      </div>
-
       {isLoading && <p className="text-muted">Loading history...</p>}
       {error && <div className="alert alert-danger">{error}</div>}
 
       {!isLoading && !error && (
         <Row className="g-4">
-          {filteredTransactions.length > 0 ? (
-            filteredTransactions.map((transaction) => (
-              <Col xs={12} md={6} lg={4} key={transaction.id}>
-                <TransactionCard transaction={transaction} onChat={openChatModal} />
-              </Col>
-            ))
+          {transactions.length > 0 ? (
+            transactions.map((transaction) => {
+              const normalizedStatus = `${transaction.status || ''}`.toLowerCase();
+
+              return (
+                <Col xs={12} md={6} lg={4} key={transaction.id}>
+                  <TransactionCard
+                    transaction={transaction}
+                    onChat={openChatModal}
+                    onComplete={handleComplete}
+                    onReview={openReviewModal}
+                    showComplete={normalizedStatus === 'accepted'}
+                    showReview={normalizedStatus === 'completed'}
+                    completeDisabled={completingId === transaction.id}
+                  />
+                </Col>
+              );
+            })
           ) : (
             <Col xs={12}>
               <div
                 className="bg-white shadow-sm text-center p-5"
                 style={{ borderRadius: '16px' }}
               >
-                <h5 className="fw-bold mb-2">No transactions found</h5>
-                <p className="text-muted mb-0">
-                  No transactions match the selected filter.
-                </p>
+                <h5 className="fw-bold mb-2">No purchases found</h5>
+                <p className="text-muted mb-0">No purchases are available yet.</p>
               </div>
             </Col>
           )}
@@ -287,8 +363,64 @@ const History = () => {
           </div>
         </Modal.Body>
       </Modal>
+
+      <Modal show={showReviewModal} onHide={closeReviewModal} centered>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-4">Leave a review</h4>
+
+          <Form.Group className="mb-3">
+            <Form.Label>Rating</Form.Label>
+            <RatingStars
+              value={reviewForm.rating}
+              onChange={(nextValue) =>
+                setReviewForm((prev) => ({ ...prev, rating: nextValue }))
+              }
+            />
+          </Form.Group>
+
+          <Form.Group className="mb-4">
+            <Form.Label>Comment</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={reviewForm.comment}
+              onChange={(event) =>
+                setReviewForm((prev) => ({ ...prev, comment: event.target.value }))
+              }
+              placeholder="Share your experience"
+            />
+          </Form.Group>
+
+          {reviewError && <div className="alert alert-danger">{reviewError}</div>}
+
+          <div className="d-flex justify-content-end gap-2">
+            <Button variant="secondary" onClick={closeReviewModal}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={handleSubmitReview} disabled={isReviewSaving}>
+              {isReviewSaving ? 'Saving...' : 'Submit review'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showReviewSuccessModal}
+        onHide={() => setShowReviewSuccessModal(false)}
+        centered
+      >
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-3">Review saved</h4>
+          <p className="text-muted mb-4">{reviewSuccess}</p>
+          <div className="d-flex justify-content-end">
+            <Button variant="primary" onClick={() => setShowReviewSuccessModal(false)}>
+              OK
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 };
 
-export default History;
+export default MyPurchases;

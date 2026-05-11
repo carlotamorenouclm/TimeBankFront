@@ -4,9 +4,11 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import DashboardUser from './pages/DashboardUser'
+import MyServices from './pages/MyServices'
+import MyPurchases from './pages/MyPurchases'
+import MySales from './pages/MySales'
 import DashboardAdmin from './pages/DashboardAdmin'
 import EditUser from './pages/EditUser'
-import History from './pages/History';
 import Inbox from './pages/Inbox';
 import Wallet from './pages/Wallet';
 import ProfileUser from './pages/ProfileUser';
@@ -24,7 +26,9 @@ function App() {
       <Route element={<ProtectedRoute canAccess={isAuthenticated} />}>
         <Route element={<UserPortalLayout canAccess={isAuthenticated} />}>
           <Route path="/dashboarduser" element={<DashboardUser />} />
-          <Route path="/history" element={<History />} />
+          <Route path="/my-services" element={<MyServices />} />
+          <Route path="/my-purchases" element={<MyPurchases />} />
+          <Route path="/my-sales" element={<MySales />} />
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="/profile" element={<ProfileUser />} />

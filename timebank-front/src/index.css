@@ -1,1 +1,20 @@
 /* Hoja global base del proyecto. Ahora mismo esta libre para estilos generales futuros. */
+
+:root {
+	--navbar-height: 70px;
+}
+
+.user-sidebar-sticky {
+	position: sticky;
+	top: var(--navbar-height);
+	height: calc(100vh - var(--navbar-height));
+	overflow-y: auto;
+}
+
+@media (max-width: 767.98px) {
+	.user-sidebar-sticky {
+		position: static;
+		height: auto;
+		overflow-y: visible;
+	}
+}

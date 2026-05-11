@@ -32,4 +32,25 @@ const isAuthenticated = () => {
   }
 };
 
-export { clearAuthSession, isAuthenticated, redirectToLogin };
+const getAuthPayload = () => {
+  const token = localStorage.getItem('access_token');
+  if (!token) return null;
+
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return null;
+
+    return JSON.parse(decodeBase64Url(parts[1]));
+  } catch {
+    return null;
+  }
+};
+
+const getAuthenticatedUserId = () => {
+  const payload = getAuthPayload();
+  if (!payload) return null;
+
+  return payload.id || payload.user_id || payload.sub || payload.uid || null;
+};
+
+export { clearAuthSession, getAuthPayload, getAuthenticatedUserId, isAuthenticated, redirectToLogin };

@@ -92,7 +92,6 @@ const Inbox = () => {
   };
 
   const pendingRequests = requests.filter((req) => req.status === 'pending');
-  const processedRequests = requests.filter((req) => req.status !== 'pending');
   return (
     <>
       <h2 className="fw-bold mb-4">Received requests</h2>
@@ -113,19 +112,6 @@ const Inbox = () => {
         </Row>
       )}
 
-      {!isLoading && processedRequests.length > 0 && (
-        <>
-          <h4 className="fw-bold mt-5 mb-3">Processed requests</h4>
-
-          <Row className="g-4">
-            {processedRequests.map((request) => (
-              <Col xs={12} key={request.id}>
-                <Request request={request} />
-              </Col>
-            ))}
-          </Row>
-        </>
-      )}
 
       <Modal show={showAcceptModal} onHide={() => setShowAcceptModal(false)} centered>
         <Modal.Body style={{ padding: '2rem' }}>

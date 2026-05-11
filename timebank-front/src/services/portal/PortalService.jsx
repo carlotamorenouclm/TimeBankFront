@@ -51,6 +51,17 @@ export const rejectInboxRequest = (requestId, reason) =>
     body: JSON.stringify({ reason }),
   });
 
+export const completeRequest = (requestId) =>
+  apiRequest(`/portal/requests/${requestId}/complete`, {
+    method: 'POST',
+  });
+
+export const submitReview = (payload) =>
+  apiRequest('/portal/rating', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
 export const getWallet = () => apiRequest('/portal/wallet');
 
 export const rechargeWallet = (amount) =>
