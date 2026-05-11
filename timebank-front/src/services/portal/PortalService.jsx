@@ -57,7 +57,7 @@ export const completeRequest = (requestId) =>
   });
 
 export const submitReview = (payload) =>
-  apiRequest('/rating', {
+  apiRequest('/portal/rating', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

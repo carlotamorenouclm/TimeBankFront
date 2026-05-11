@@ -178,8 +178,7 @@ const MyPurchases = () => {
       await submitReview({
         rating: ratingValue,
         comment: reviewForm.comment.trim(),
-        id_user: reviewerId,
-        id_other_user: revieweeId,
+        transaction_id: reviewTransaction.id,
       });
       closeReviewModal();
     } catch (saveError) {
