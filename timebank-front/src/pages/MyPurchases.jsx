@@ -29,6 +29,8 @@ const MyPurchases = () => {
   const [reviewForm, setReviewForm] = useState({ rating: '5', comment: '' });
   const [reviewError, setReviewError] = useState('');
   const [isReviewSaving, setIsReviewSaving] = useState(false);
+  const [reviewSuccess, setReviewSuccess] = useState('');
+  const [showReviewSuccessModal, setShowReviewSuccessModal] = useState(false);
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -109,6 +111,8 @@ const MyPurchases = () => {
     setReviewTransaction(transaction);
     setReviewForm({ rating: '5', comment: '' });
     setReviewError('');
+    setReviewSuccess('');
+    setShowReviewSuccessModal(false);
     setShowReviewModal(true);
   };
 
@@ -180,6 +184,8 @@ const MyPurchases = () => {
         comment: reviewForm.comment.trim(),
         transaction_id: reviewTransaction.id,
       });
+      setReviewSuccess('Review submitted successfully.');
+      setShowReviewSuccessModal(true);
       closeReviewModal();
     } catch (saveError) {
       setReviewError(saveError.message || 'Error submitting review');
@@ -393,6 +399,22 @@ const MyPurchases = () => {
             </Button>
             <Button variant="primary" onClick={handleSubmitReview} disabled={isReviewSaving}>
               {isReviewSaving ? 'Saving...' : 'Submit review'}
+            </Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal
+        show={showReviewSuccessModal}
+        onHide={() => setShowReviewSuccessModal(false)}
+        centered
+      >
+        <Modal.Body style={{ padding: '2rem' }}>
+          <h4 className="fw-bold mb-3">Review saved</h4>
+          <p className="text-muted mb-4">{reviewSuccess}</p>
+          <div className="d-flex justify-content-end">
+            <Button variant="primary" onClick={() => setShowReviewSuccessModal(false)}>
+              OK
             </Button>
           </div>
         </Modal.Body>
