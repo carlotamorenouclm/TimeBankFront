@@ -8,8 +8,10 @@ const TransactionCard = ({
   onChat,
   onComplete,
   onReview,
+  onViewReviews,
   showComplete,
   showReview,
+  showViewReviews,
   completeDisabled,
 }) => {
   const otherUser = transaction.otherUser || transaction.other_user || '-';
@@ -106,7 +108,16 @@ const TransactionCard = ({
                   size="sm"
                   onClick={() => onReview?.(transaction)}
                 >
-                  Review
+                  Leave a review
+                </Button>
+              )}
+              {showViewReviews && (
+                <Button
+                  variant="outline-primary"
+                  size="sm"
+                  onClick={() => onViewReviews?.(transaction)}
+                >
+                  See Reviews
                 </Button>
               )}
               <Button

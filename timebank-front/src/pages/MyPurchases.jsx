@@ -9,7 +9,12 @@ import {
   sendChatMessage,
   sendThreadMessage,
 } from '../services/chat/ChatService';
-import { completeRequest, getHistory, submitReview } from '../services/portal/PortalService';
+import {
+  completeRequest,
+  getHistory,
+  getTransactionReviews,
+  submitReview,
+} from '../services/portal/PortalService';
 import { getAuthenticatedUserId } from '../utils/AuthHelpers';
 
 const MyPurchases = () => {
@@ -31,6 +36,11 @@ const MyPurchases = () => {
   const [isReviewSaving, setIsReviewSaving] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState('');
   const [showReviewSuccessModal, setShowReviewSuccessModal] = useState(false);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [reviewsTransaction, setReviewsTransaction] = useState(null);
+  const [transactionReviews, setTransactionReviews] = useState([]);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState('');
 
   useEffect(() => {
     const loadHistory = async () => {
@@ -121,6 +131,31 @@ const MyPurchases = () => {
     setReviewTransaction(null);
     setReviewForm({ rating: '5', comment: '' });
     setReviewError('');
+  };
+
+  const openReviewsModal = async (transaction) => {
+    setReviewsTransaction(transaction);
+    setTransactionReviews([]);
+    setReviewsError('');
+    setShowReviewsModal(true);
+
+    try {
+      setIsReviewsLoading(true);
+      const response = await getTransactionReviews(transaction.id);
+      const reviews = Array.isArray(response) ? response : response?.reviews || [];
+      setTransactionReviews(reviews);
+    } catch (loadError) {
+      setReviewsError(loadError.message || 'Error loading reviews');
+    } finally {
+      setIsReviewsLoading(false);
+    }
+  };
+
+  const closeReviewsModal = () => {
+    setShowReviewsModal(false);
+    setReviewsTransaction(null);
+    setTransactionReviews([]);
+    setReviewsError('');
   };
 
   const handleComplete = async (transaction) => {
@@ -248,9 +283,13 @@ const MyPurchases = () => {
                     onChat={openChatModal}
                     onComplete={handleComplete}
                     onReview={openReviewModal}
+                    onViewReviews={openReviewsModal}
                     showComplete={normalizedStatus === 'accepted'}
                     showReview={normalizedStatus === 'completed'}
+                    showViewReviews={normalizedStatus === 'completed'}
                     completeDisabled={completingId === transaction.id}
+                    reviewLabel="Leave review"
+                    viewReviewsLabel="Review"
                   />
                 </Col>
               );
@@ -401,6 +440,69 @@ const MyPurchases = () => {
               {isReviewSaving ? 'Saving...' : 'Submit review'}
             </Button>
           </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showReviewsModal} onHide={closeReviewsModal} centered>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+            <div>
+              <h4 className="fw-bold mb-1">Reviews</h4>
+              <p className="text-muted mb-0">
+                {reviewsTransaction?.service ? `Service: ${reviewsTransaction.service}` : ''}
+              </p>
+            </div>
+            <Button
+              variant="outline-danger"
+              onClick={closeReviewsModal}
+              aria-label="Close reviews"
+              className="fw-bold"
+            >
+              X
+            </Button>
+          </div>
+
+          {isReviewsLoading ? (
+            <div className="text-center text-muted">Loading reviews...</div>
+          ) : transactionReviews.length === 0 ? (
+            <div className="text-center text-muted">No reviews yet.</div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {transactionReviews.map((review, index) => {
+                const reviewerName =
+                  review.reviewer_name ||
+                  review.reviewerName ||
+                  review.reviewer ||
+                  review.author_name ||
+                  'User';
+                const ratingValue = review.rating ?? review.score ?? 0;
+                const commentValue = review.comment || 'No comment provided.';
+                const createdAt = review.created_at || review.createdAt || '';
+
+                return (
+                  <div
+                    key={review.id || `${reviewerName}-${index}`}
+                    className="border rounded-3 p-3 bg-white"
+                  >
+                    <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                      <div className="fw-semibold">{reviewerName}</div>
+                      {createdAt && (
+                        <div className="text-muted" style={{ fontSize: '0.85rem' }}>
+                          {createdAt}
+                        </div>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <RatingStars value={String(ratingValue)} />
+                    </div>
+                    <div className="text-muted">{commentValue}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {reviewsError && <div className="alert alert-danger mt-3">{reviewsError}</div>}
         </Modal.Body>
       </Modal>
 

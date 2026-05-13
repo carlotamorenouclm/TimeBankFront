@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
 import { getServiceImage } from '../constants/serviceImages';
-import { createServiceOffer, deleteServiceOffer, getDashboardServices } from '../services/portal/PortalService';
+import { createServiceOffer, deleteServiceOffer, getDashboardServices, getTransactionReviews } from '../services/portal/PortalService';
+import RatingStars from '../components/RatingStars';
 
 const initialServiceForm = {
   title: '',
@@ -31,6 +32,38 @@ const MyServices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  // Reviews modal state
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [reviewsService, setReviewsService] = useState(null);
+  const [serviceReviews, setServiceReviews] = useState([]);
+  const [isReviewsLoading, setIsReviewsLoading] = useState(false);
+  const [reviewsError, setReviewsError] = useState('');
+
+  // Handler to open reviews modal for a service
+  const openReviewsModal = async (service) => {
+    setReviewsService(service);
+    setServiceReviews([]);
+    setReviewsError('');
+    setShowReviewsModal(true);
+    try {
+      setIsReviewsLoading(true);
+      // Use the service.id as the transactionId for reviews (API may need adjustment if not 1:1)
+      const response = await getTransactionReviews(service.id);
+      const reviews = Array.isArray(response) ? response : response?.reviews || [];
+      setServiceReviews(reviews);
+    } catch (err) {
+      setReviewsError(err.message || 'Error loading reviews');
+    } finally {
+      setIsReviewsLoading(false);
+    }
+  };
+
+  const closeReviewsModal = () => {
+    setShowReviewsModal(false);
+    setReviewsService(null);
+    setServiceReviews([]);
+    setReviewsError('');
+  };
 
   const loadDashboard = async () => {
     try {
@@ -223,6 +256,9 @@ const MyServices = () => {
                   actionLabel="Delete"
                   actionDisabled={false}
                   onAction={() => openDeleteModal(service)}
+                  overallRating={service.overall_rating ?? null}
+                  showSeeReviews={true}
+                  onSeeReviews={() => openReviewsModal(service)}
                 />
               </Col>
             ))
@@ -445,6 +481,68 @@ const MyServices = () => {
               {isSaving ? 'Deleting...' : 'Delete'}
             </Button>
           </div>
+        </Modal.Body>
+      </Modal>
+      {/* Reviews Modal */}
+      <Modal show={showReviewsModal} onHide={closeReviewsModal} centered>
+        <Modal.Body style={{ padding: '2rem' }}>
+          <div className="d-flex justify-content-between align-items-start gap-3 mb-4">
+            <div>
+              <h4 className="fw-bold mb-1">Reviews</h4>
+              <p className="text-muted mb-0">
+                {reviewsService?.title ? `Service: ${reviewsService.title}` : ''}
+              </p>
+            </div>
+            <Button
+              variant="outline-danger"
+              onClick={closeReviewsModal}
+              aria-label="Close reviews"
+              className="fw-bold"
+            >
+              X
+            </Button>
+          </div>
+
+          {isReviewsLoading ? (
+            <div className="text-center text-muted">Loading reviews...</div>
+          ) : serviceReviews.length === 0 ? (
+            <div className="text-center text-muted">No reviews yet.</div>
+          ) : (
+            <div className="d-flex flex-column gap-3">
+              {serviceReviews.map((review, index) => {
+                const reviewerName =
+                  review.reviewer_name ||
+                  review.reviewerName ||
+                  review.reviewer ||
+                  review.author_name ||
+                  'User';
+                const ratingValue = review.rating ?? review.score ?? 0;
+                const commentValue = review.comment || 'No comment provided.';
+                const createdAt = review.created_at || review.createdAt || '';
+                return (
+                  <div
+                    key={review.id || `${reviewerName}-${index}`}
+                    className="border rounded-3 p-3 bg-white"
+                  >
+                    <div className="d-flex justify-content-between align-items-start gap-2 mb-2">
+                      <div className="fw-semibold">{reviewerName}</div>
+                      {createdAt && (
+                        <div className="text-muted" style={{ fontSize: '0.85rem' }}>
+                          {createdAt}
+                        </div>
+                      )}
+                    </div>
+                    <div className="mb-2">
+                      <RatingStars value={String(ratingValue)} />
+                    </div>
+                    <div className="text-muted">{commentValue}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {reviewsError && <div className="alert alert-danger mt-3">{reviewsError}</div>}
         </Modal.Body>
       </Modal>
     </>
