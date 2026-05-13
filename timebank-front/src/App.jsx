@@ -9,6 +9,7 @@ import MyPurchases from './pages/MyPurchases'
 import MySales from './pages/MySales'
 import DashboardAdmin from './pages/DashboardAdmin'
 import EditUser from './pages/EditUser'
+import Monitoring from './pages/Monitoring'
 import Inbox from './pages/Inbox';
 import Wallet from './pages/Wallet';
 import ProfileUser from './pages/ProfileUser';
@@ -36,7 +37,9 @@ function App() {
       </Route>
       <Route element={<ProtectedRoute canAccess={isAuthenticated} redirectPath="/dashboarduser" />}>
         <Route path="/dashboardadmin" element={<DashboardAdmin />} />
+        <Route path="/monitoring" element={<Monitoring />} />
         <Route path="/users/:userId/edit" element={<EditUser />} />
+        <Route path="/users/:userId/monitoring" element={<Monitoring />} />
       </Route>
     </Routes>
   )

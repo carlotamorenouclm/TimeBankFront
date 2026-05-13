@@ -4,7 +4,9 @@ import {
   USERS_PATH,
   ADMINS_PATH,
   UPDATE_ROLE_PATH,
-  UPDATE_USER_INFO_PATH
+  UPDATE_USER_INFO_PATH,
+  UPDATE_IS_ACTIVE_PATH,
+  DELETE_USER_PATH
 } from '../../constants/API_paths';
 import {
   extractArrayPayload, normalizeUser, validateApiAndAccessToken, parseApiError} from '../../utils/UserHelpers';
@@ -111,6 +113,51 @@ export const updateUserInfo = async ({ userId, firstName, lastName, accessToken 
       name: firstName,
       surname: lastName
     })
+  });
+
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
+  }
+
+  return true;
+};
+
+export const updateUserIsActive = async ({ userId, isActive, accessToken }) => {
+  validateApiAndAccessToken(API_URL, accessToken);
+
+  const response = await fetch(
+    `${API_URL}${ADMINS_PATH}${UPDATE_IS_ACTIVE_PATH}/${userId}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        is_active: isActive
+      })
+    }
+  );
+
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
+  }
+
+  return true;
+};
+
+export const deleteUser = async ({ userId, accessToken }) => {
+  validateApiAndAccessToken(API_URL, accessToken);
+
+  const response = await fetch(`${API_URL}${USERS_PATH}${DELETE_USER_PATH}/${userId}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
   });
 
   const responseData = await response.json().catch(() => null);

@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import NavbarCustom from '../components/NavbarCustom';
 import UserListCard from '../components/UserListCard';
-import { getAllAdmins, getAllUsers } from '../services/admin/UsersService';
+import { deleteUser, getAllAdmins, getAllUsers, updateUserIsActive } from '../services/admin/UsersService';
 
 const DashboardAdmin = () => {
 	const [activeView, setActiveView] = useState('admins');
@@ -11,6 +11,8 @@ const DashboardAdmin = () => {
 	const [users, setUsers] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState('');
+	const [activeToggleId, setActiveToggleId] = useState(null);
+	const [activeDeleteId, setActiveDeleteId] = useState(null);
 	const loadDashboardData = async () => {
 			setIsLoading(true);
 			setErrorMessage('');
@@ -41,6 +43,51 @@ const DashboardAdmin = () => {
 
 	const roleLabel = activeView === 'admins' ? 'Admin' : 'User';
 	const badgeVariant = activeView === 'admins' ? 'warning' : 'primary';
+
+	const handleToggleActive = async (userId, nextIsActive) => {
+		setActiveToggleId(userId);
+		setErrorMessage('');
+		try {
+			const token = localStorage.getItem('access_token');
+			await updateUserIsActive({ userId, isActive: nextIsActive, accessToken: token });
+
+			setAdmins((prev) =>
+				prev.map((admin) =>
+					admin.id === userId ? { ...admin, isActive: nextIsActive } : admin
+				)
+			);
+			setUsers((prev) =>
+				prev.map((currentUser) =>
+					currentUser.id === userId ? { ...currentUser, isActive: nextIsActive } : currentUser
+				)
+			);
+		} catch (error) {
+			setErrorMessage(error.message || 'No se pudo actualizar el estado del usuario.');
+		} finally {
+			setActiveToggleId(null);
+		}
+	};
+
+	const handleDeleteUser = async (userToDelete) => {
+		if (!userToDelete) return;
+		const fullName = `${userToDelete.firstName} ${userToDelete.lastName}`;
+		const shouldDelete = window.confirm(`Eliminar a ${fullName}?`);
+		if (!shouldDelete) return;
+
+		setActiveDeleteId(userToDelete.id);
+		setErrorMessage('');
+		try {
+			const token = localStorage.getItem('access_token');
+			await deleteUser({ userId: userToDelete.id, accessToken: token });
+
+			setAdmins((prev) => prev.filter((admin) => admin.id !== userToDelete.id));
+			setUsers((prev) => prev.filter((currentUser) => currentUser.id !== userToDelete.id));
+		} catch (error) {
+			setErrorMessage(error.message || 'No se pudo eliminar el usuario.');
+		} finally {
+			setActiveDeleteId(null);
+		}
+	};
 
 	return (
 		<div style={{ minHeight: '100vh', backgroundColor: '#f8f9fc' }}>
@@ -77,7 +124,15 @@ const DashboardAdmin = () => {
 					<Row className="g-3">
 						{currentUsers.map((user) => (
 							<Col md={6} lg={4} key={user.id}>
-								<UserListCard user={user} roleLabel={roleLabel} badgeVariant={badgeVariant} />
+								<UserListCard
+									user={user}
+									roleLabel={roleLabel}
+									badgeVariant={badgeVariant}
+									onToggleActive={handleToggleActive}
+									isToggling={activeToggleId === user.id}
+									onDelete={handleDeleteUser}
+									isDeleting={activeDeleteId === user.id}
+								/>
 							</Col>
 						))}
 					</Row>

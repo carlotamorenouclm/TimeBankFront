@@ -22,12 +22,21 @@ export const extractArrayPayload = (payload) => {
 export const normalizeUser = (user, idx) => {
   const firstName = user.firstName || user.name || user.first_name || '';
   const lastName = user.lastName || user.surname || user.last_name || '';
+  const isActive =
+    typeof user.isActive === 'boolean'
+      ? user.isActive
+      : typeof user.is_active === 'boolean'
+        ? user.is_active
+        : typeof user.active === 'boolean'
+          ? user.active
+          : true;
 
   return {
     id: user.id || user._id || `${firstName}-${lastName}-${idx}`,
     firstName,
     lastName,
-    email: user.email || user.mail || ''
+    email: user.email || user.mail || '',
+    isActive
   };
 };
 
