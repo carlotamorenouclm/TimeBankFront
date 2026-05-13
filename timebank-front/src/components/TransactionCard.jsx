@@ -1,6 +1,7 @@
 // Individual card used to render one movement in the exchange history.
 import React from 'react';
-import { Card, Badge, Button } from 'react-bootstrap';
+import { Card, Button } from 'react-bootstrap';
+import getStatusBadge from '../utils/getStatusBadge';
 
 const TransactionCard = ({
   transaction,
@@ -14,28 +15,6 @@ const TransactionCard = ({
   const otherUser = transaction.otherUser || transaction.other_user || '-';
   const normalizedStatus = `${transaction.status || ''}`.toLowerCase();
 
-  const getStatusBadge = (status) => {
-    const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '-';
-
-    switch (status) {
-      case 'completed':
-        return <Badge bg="success">{label}</Badge>;
-      case 'pending':
-        return (
-          <Badge bg="warning" text="dark">
-            {label}
-          </Badge>
-        );
-      case 'cancelled':
-        return <Badge bg="danger">{label}</Badge>;
-      case 'rejected':
-        return <Badge bg="danger">{label}</Badge>;
-      case 'accepted':
-        return <Badge bg="primary">{label}</Badge>;
-      default:
-        return <Badge bg="secondary">{label}</Badge>;
-    }
-  };
 
   const amountLabel = `${transaction.amount > 0 ? '+' : ''}${transaction.amount} coins`;
 

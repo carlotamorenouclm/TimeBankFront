@@ -4,12 +4,20 @@ import { Badge, Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './UserListCard.css';
 
-const UserListCard = ({ user, roleLabel, badgeVariant }) => {
+const UserListCard = ({ user, roleLabel, badgeVariant, onToggleActive, isToggling, onDelete, isDeleting }) => {
   const navigate = useNavigate();
   const fullName = `${user.firstName} ${user.lastName}`;
+  const isActive = user?.isActive ?? true;
+  const toggleLabel = isActive ? 'Deactivate' : 'Activate';
+  const toggleVariant = isActive ? '' : 'outline-success';
+  const toggleClassName = isActive ? 'btn-outline-orange' : '';
 
   const handleEditUser = () => {
     navigate(`/users/${user.id}/edit`, { state: { user, role: roleLabel } });
+  };
+
+  const handleMonitoring = () => {
+    navigate(`/users/${user.id}/monitoring`, { state: { user, role: roleLabel } });
   };
 
   return (
@@ -21,14 +29,44 @@ const UserListCard = ({ user, roleLabel, badgeVariant }) => {
         </div>
 
         <Card.Text className="mb-2 text-secondary">{user.email}</Card.Text>
-        <Button
-          variant="outline-primary"
-          size="sm"
-          aria-label={`Edit user ${fullName}`}
-          className="edit-user-button mt-auto align-self-end"
-          onClick={handleEditUser}
-        ><span>Edit</span></Button>
-        
+        <div className="mt-auto d-flex flex-wrap gap-2 align-self-end">
+          <Button
+            variant="outline-secondary"
+            size="sm"
+            aria-label={`Monitor user ${fullName}`}
+            onClick={handleMonitoring}
+          >
+            Monitoring
+          </Button>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            aria-label={`Edit user ${fullName}`}
+            className="edit-user-button"
+            onClick={handleEditUser}
+          >
+            <span>Edit</span>
+          </Button>
+          <Button
+            variant={toggleVariant}
+            className={toggleClassName}
+            size="sm"
+            aria-label={`${toggleLabel} user ${fullName}`}
+            disabled={isToggling}
+            onClick={() => onToggleActive?.(user.id, !isActive)}
+          >
+            {isToggling ? 'Procesando...' : toggleLabel}
+          </Button>
+          <Button
+            variant="outline-danger"
+            size="sm"
+            aria-label={`Delete user ${fullName}`}
+            disabled={isDeleting}
+            onClick={() => onDelete?.(user)}
+          >
+            {isDeleting ? 'Eliminando...' : 'Eliminar'}
+          </Button>
+        </div>
       </Card.Body>
     </Card>
   );

@@ -4,3 +4,5 @@ export const USERS_PATH = '/users';
 export const ADMINS_PATH = '/admins';
 export const UPDATE_ROLE_PATH ='/updateRole';
 export const UPDATE_USER_INFO_PATH = '/update';
+export const UPDATE_IS_ACTIVE_PATH = '/update/is-active';
+export const DELETE_USER_PATH = '/delete';

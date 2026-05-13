@@ -15,3 +15,15 @@
   gap: 0.35rem;
   font-weight: 600;
 }
+
+.btn-outline-orange {
+  color: #d66d0b;
+  border-color: #d66d0b;
+}
+
+.btn-outline-orange:hover,
+.btn-outline-orange:focus {
+  color: #fff;
+  background-color: #d66d0b;
+  border-color: #d66d0b;
+}
