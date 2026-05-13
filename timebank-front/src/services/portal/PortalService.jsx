@@ -57,10 +57,13 @@ export const completeRequest = (requestId) =>
   });
 
 export const submitReview = (payload) =>
-  apiRequest('/portal/rating', {
+  apiRequest('/reviews', {
     method: 'POST',
     body: JSON.stringify(payload),
   });
+
+export const getTransactionReviews = (transactionId) =>
+  apiRequest(`/reviews/${transactionId}`);
 
 export const getWallet = () => apiRequest('/portal/wallet');
 

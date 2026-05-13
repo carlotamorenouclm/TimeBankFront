@@ -1,7 +1,10 @@
 // Visual card for each service shown in the user catalog.
+
 import React from 'react';
-import { Card, Row, Col } from 'react-bootstrap';
+import { Card, Row, Col, Button } from 'react-bootstrap';
 import ButtonPill from './ButtonPill';
+import RatingStars from './RatingStars';
+
 
 const ServiceCard = ({
   title,
@@ -14,6 +17,9 @@ const ServiceCard = ({
   actionLabel = 'Request',
   onAction,
   actionDisabled = false,
+  overallRating = null,
+  onSeeReviews = null,
+  showSeeReviews = false,
 }) => {
   return (
     <Card
@@ -25,7 +31,6 @@ const ServiceCard = ({
       }}
     >
       <Row className="g-0 align-items-stretch">
-        
         {/* IMAGE */}
         <Col xs={12} md={3} style={{ minHeight: '200px', backgroundColor: '#eef3f8' }}>
           {image && (
@@ -45,8 +50,7 @@ const ServiceCard = ({
         {/* INFO */}
         <Col xs={12} md={9}>
           <Card.Body className="h-100 d-flex flex-column flex-md-row justify-content-between gap-4 p-4">
-            
-            <div>
+            <div className="flex-grow-1">
               <Card.Title
                 className="fw-bold mb-3"
                 style={{ color: 'var(--deep-blue)', fontSize: '1.35rem' }}
@@ -72,6 +76,27 @@ const ServiceCard = ({
                 <Card.Text className="small text-muted">
                   {extra}
                 </Card.Text>
+              )}
+
+              {/* Overall Rating Stars */}
+              {overallRating !== null && (
+                <div className="my-2">
+                  <span className="me-2 fw-semibold">Overall review:</span>
+                  <RatingStars value={overallRating} onChange={null} />
+                </div>
+              )}
+
+              {/* See Reviews Button */}
+              {showSeeReviews && (
+                <div className="mb-2">
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={onSeeReviews}
+                  >
+                    See Reviews
+                  </Button>
+                </div>
               )}
             </div>
 
