@@ -65,6 +65,9 @@ export const submitReview = (payload) =>
 export const getTransactionReviews = (transactionId) =>
   apiRequest(`/reviews/${transactionId}`);
 
+export const getServiceReviews = (serviceOfferId) =>
+  apiRequest(`/reviews/services/${serviceOfferId}`);
+
 export const getWallet = () => apiRequest('/portal/wallet');
 
 export const rechargeWallet = (amount) =>

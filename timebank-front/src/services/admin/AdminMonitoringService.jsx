@@ -16,3 +16,21 @@ export const getAdminTransactionHistory = (userId) => {
 
   return apiRequest(`/admins/transaction/history?user_id=${encodeURIComponent(userId)}`);
 };
+
+export const getAdminUserReviews = (userId) => {
+  if (!userId) {
+    throw new Error('Missing user id for reviews');
+  }
+
+  return apiRequest(`/admins/reviews?user_id=${encodeURIComponent(userId)}`);
+};
+
+export const deleteAdminReview = (reviewId) => {
+  if (!reviewId) {
+    throw new Error('Missing review id');
+  }
+
+  return apiRequest(`/admins/reviews/${reviewId}`, {
+    method: 'DELETE',
+  });
+};

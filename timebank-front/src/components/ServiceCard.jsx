@@ -21,6 +21,11 @@ const ServiceCard = ({
   onSeeReviews = null,
   showSeeReviews = false,
 }) => {
+  const formattedRating =
+    overallRating !== null && overallRating !== undefined
+      ? Number(overallRating).toFixed(1)
+      : null;
+
   return (
     <Card
       className="shadow-sm border-0"
@@ -79,10 +84,11 @@ const ServiceCard = ({
               )}
 
               {/* Overall Rating Stars */}
-              {overallRating !== null && (
-                <div className="my-2">
-                  <span className="me-2 fw-semibold">Overall review:</span>
-                  <RatingStars value={overallRating} onChange={null} />
+              {formattedRating !== null && (
+                <div className="my-2 d-flex align-items-center flex-wrap gap-2">
+                  <span className="fw-semibold">Average rating:</span>
+                  <RatingStars value={overallRating} onChange={null} size="1.35rem" />
+                  <span className="small text-muted">{formattedRating}/5</span>
                 </div>
               )}
 

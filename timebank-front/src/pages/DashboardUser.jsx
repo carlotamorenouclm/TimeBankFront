@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
 import { getServiceImage } from '../constants/serviceImages';
-import {createServiceRequest, getDashboardServices, getTransactionReviews,} from '../services/portal/PortalService';
+import {createServiceRequest, getDashboardServices, getServiceReviews,} from '../services/portal/PortalService';
 import RatingStars from '../components/RatingStars';
 
 const initialRequestForm = {
@@ -41,8 +41,7 @@ const DashboardUser = () => {
     setShowReviewsModal(true);
     try {
       setIsReviewsLoading(true);
-      // Use the service.id as the transactionId for reviews (API may need adjustment if not 1:1)
-      const response = await getTransactionReviews(service.id);
+      const response = await getServiceReviews(service.id);
       const reviews = Array.isArray(response) ? response : response?.reviews || [];
       setServiceReviews(reviews);
     } catch (err) {

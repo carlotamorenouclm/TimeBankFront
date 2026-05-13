@@ -4,7 +4,10 @@ import { Badge, Button, Card, Col, Container, ListGroup, Row } from 'react-boots
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import MonitoringMovementItem from '../components/MonitoringMovementItem';
+import RatingStars from '../components/RatingStars';
 import {
+  deleteAdminReview,
+  getAdminUserReviews,
   getAdminTransactionHistory,
   getAdminWalletHistory
 } from '../services/admin/AdminMonitoringService';
@@ -16,8 +19,10 @@ const Monitoring = () => {
   const user = location.state?.user;
   const [transactions, setTransactions] = useState([]);
   const [recharges, setRecharges] = useState([]);
+  const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deletingReviewId, setDeletingReviewId] = useState(null);
 
   useEffect(() => {
     const loadMonitoringData = async () => {
@@ -30,13 +35,15 @@ const Monitoring = () => {
           throw new Error('Missing user id for monitoring');
         }
 
-        const [historyData, walletData] = await Promise.all([
+        const [historyData, walletData, reviewsData] = await Promise.all([
           getAdminTransactionHistory(resolvedUserId),
-          getAdminWalletHistory(resolvedUserId)
+          getAdminWalletHistory(resolvedUserId),
+          getAdminUserReviews(resolvedUserId)
         ]);
 
         setTransactions(historyData?.transactions || []);
         setRecharges(walletData?.recharges || []);
+        setReviews(Array.isArray(reviewsData) ? reviewsData : []);
       } catch (loadError) {
         setError(loadError.message || 'Error loading monitoring data');
       } finally {
@@ -100,6 +107,22 @@ const Monitoring = () => {
   }, [movementItems, recharges, transactions.length]);
 
   const userName = user ? `${user.firstName} ${user.lastName}` : 'User';
+
+  const handleDeleteReview = async (review) => {
+    const shouldDelete = window.confirm('Eliminar esta reseña?');
+    if (!shouldDelete) return;
+
+    try {
+      setDeletingReviewId(review.id);
+      setError('');
+      await deleteAdminReview(review.id);
+      setReviews((prev) => prev.filter((item) => item.id !== review.id));
+    } catch (deleteError) {
+      setError(deleteError.message || 'Error deleting review');
+    } finally {
+      setDeletingReviewId(null);
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fc' }}>
@@ -172,6 +195,48 @@ const Monitoring = () => {
                   <ListGroup variant="flush">
                     {movementItems.map((item) => (
                       <MonitoringMovementItem key={item.id} item={item} />
+                    ))}
+                  </ListGroup>
+                )}
+              </Card.Body>
+            </Card>
+
+            <div className="mt-5">
+              <h1 className="fw-bold mb-2">Reviews</h1>
+            </div>
+            <Card className="border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+              <Card.Body className="p-4">
+                {reviews.length === 0 ? (
+                  <p className="text-muted mb-0">No reviews written by this user.</p>
+                ) : (
+                  <ListGroup variant="flush">
+                    {reviews.map((review) => (
+                      <ListGroup.Item
+                        key={review.id}
+                        className="py-3 d-flex flex-column flex-md-row justify-content-between align-items-start gap-3"
+                      >
+                        <div>
+                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                            <span className="fw-bold">{review.service || 'Review'}</span>
+                            <Badge bg="secondary">Review</Badge>
+                          </div>
+                          <div className="my-2">
+                            <RatingStars value={review.rating} onChange={null} size="1.3rem" />
+                          </div>
+                          <p className="mb-1">{review.comment || 'No comment provided.'}</p>
+                          <div className="text-muted small">
+                            {review.created_at} · Reviewed user: {review.reviewed_user_name || review.reviewed_user_id}
+                          </div>
+                        </div>
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          disabled={deletingReviewId === review.id}
+                          onClick={() => handleDeleteReview(review)}
+                        >
+                          {deletingReviewId === review.id ? 'Eliminando...' : 'Eliminar'}
+                        </Button>
+                      </ListGroup.Item>
                     ))}
                   </ListGroup>
                 )}
