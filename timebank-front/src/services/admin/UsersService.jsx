@@ -6,6 +6,8 @@ import {
   UPDATE_ROLE_PATH,
   UPDATE_USER_INFO_PATH,
   UPDATE_IS_ACTIVE_PATH,
+  UPDATE_WALLET_BALANCE_PATH,
+  WALLET_HISTORY_PATH,
   DELETE_USER_PATH
 } from '../../constants/API_paths';
 import {
@@ -148,6 +150,54 @@ export const updateUserIsActive = async ({ userId, isActive, accessToken }) => {
   }
 
   return true;
+};
+
+export const getUserWallet = async ({ userId, accessToken }) => {
+  validateApiAndAccessToken(API_URL, accessToken);
+
+  const response = await fetch(
+    `${API_URL}${ADMINS_PATH}${WALLET_HISTORY_PATH}?user_id=${encodeURIComponent(userId)}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    }
+  );
+
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
+  }
+
+  return responseData;
+};
+
+export const updateUserCoins = async ({ userId, coins, accessToken }) => {
+  validateApiAndAccessToken(API_URL, accessToken);
+
+  const response = await fetch(
+    `${API_URL}${ADMINS_PATH}${UPDATE_WALLET_BALANCE_PATH}/${userId}`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        coins
+      })
+    }
+  );
+
+  const responseData = await response.json().catch(() => null);
+
+  if (!response.ok) {
+    throw new Error(parseApiError(responseData, response.status));
+  }
+
+  return responseData;
 };
 
 export const deleteUser = async ({ userId, accessToken }) => {

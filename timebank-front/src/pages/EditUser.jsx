@@ -1,9 +1,14 @@
 // Admin panel form used to edit personal data and role.
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
-import { updateUserRole, updateUserInfo } from '../services/admin/UsersService';
+import {
+  getUserWallet,
+  updateUserCoins,
+  updateUserRole,
+  updateUserInfo
+} from '../services/admin/UsersService';
 import {
   normalizeRole,
   normalizeText,
@@ -24,14 +29,32 @@ const EditUser = () => {
     firstName: selectedUser?.firstName || '',
     lastName: selectedUser?.lastName || '',
     email: selectedUser?.email || '',
-    role: initialRole
+    role: initialRole,
+    coins: ''
   });
+  const [initialCoins, setInitialCoins] = useState(null);
   
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const hasError = Boolean(errorMessage);
   const hasSuccess = Boolean(statusMessage) && !hasError;
+
+  useEffect(() => {
+    const loadWallet = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        const wallet = await getUserWallet({ userId, accessToken: token });
+        const coins = Number(wallet?.balance ?? 0);
+        setInitialCoins(coins);
+        setFormData((prev) => ({ ...prev, coins: String(coins) }));
+      } catch (error) {
+        setErrorMessage(error.message || 'The user wallet could not be loaded.');
+      }
+    };
+
+    loadWallet();
+  }, [userId]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -46,13 +69,17 @@ const EditUser = () => {
     const normalizedCurrentRole = normalizeRole(formData.role);
     const normalizedCurrentFirstName = normalizeText(formData.firstName);
     const normalizedCurrentLastName = normalizeText(formData.lastName);
+    const currentCoins = Number(formData.coins);
 
     const validationError = validateEditUserInput({
       firstName: normalizedCurrentFirstName, lastName: normalizedCurrentLastName});
 
+    const coinsAreInvalid =
+      formData.coins === '' || !Number.isInteger(currentCoins) || currentCoins < 0;
     const roleChanged = normalizedCurrentRole !== initialRole;
     const firstNameChanged = normalizedCurrentFirstName !== initialFirstName;
     const lastNameChanged = normalizedCurrentLastName !== initialLastName;
+    const coinsChanged = currentCoins !== initialCoins;
     const userInfoChanged = firstNameChanged || lastNameChanged;
 
     if (validationError) {
@@ -60,7 +87,12 @@ const EditUser = () => {
       return;
     }
 
-    if (!roleChanged && !userInfoChanged) {
+    if (coinsAreInvalid) {
+      setErrorMessage('Coins must be a whole number equal to or greater than 0.');
+      return;
+    }
+
+    if (!roleChanged && !userInfoChanged && !coinsChanged) {
       setStatusMessage('There are no changes to save.');
       return;
     }
@@ -84,6 +116,17 @@ const EditUser = () => {
           newRole: normalizedCurrentRole,
           accessToken: token
         });
+      }
+
+      if (coinsChanged) {
+        const wallet = await updateUserCoins({
+          userId,
+          coins: currentCoins,
+          accessToken: token
+        });
+        const savedCoins = Number(wallet?.balance ?? currentCoins);
+        setInitialCoins(savedCoins);
+        setFormData((prev) => ({ ...prev, coins: String(savedCoins) }));
       }
 
       setStatusMessage('Changes saved successfully.');
@@ -146,6 +189,19 @@ const EditUser = () => {
                       value={formData.email}
                       readOnly
                       disabled
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-4" controlId="coins">
+                    <Form.Label>Coins</Form.Label>
+                    <Form.Control
+                      type="number"
+                      name="coins"
+                      min="0"
+                      step="1"
+                      value={formData.coins}
+                      onChange={handleChange}
+                      required
                     />
                   </Form.Group>
 

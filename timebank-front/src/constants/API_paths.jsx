@@ -5,4 +5,6 @@ export const ADMINS_PATH = '/admins';
 export const UPDATE_ROLE_PATH ='/updateRole';
 export const UPDATE_USER_INFO_PATH = '/update';
 export const UPDATE_IS_ACTIVE_PATH = '/update/is-active';
+export const UPDATE_WALLET_BALANCE_PATH = '/wallet/balance';
+export const WALLET_HISTORY_PATH = '/wallet/history';
 export const DELETE_USER_PATH = '/delete';
