@@ -1,3 +1,8 @@
+/*
+ * Constantes compartidas para evitar valores repetidos en el frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Centraliza las rutas base del backend para no repetir strings por el proyecto.
 export const API_URL = import.meta.env.VITE_API_URL;
 export const USERS_PATH = '/users';

@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Pantalla de acceso: autentica y redirige al dashboard adecuado segun el rol.
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
@@ -8,6 +13,7 @@ import NavbarCustom from '../components/NavbarCustom';
 import { loginUser } from '../services/auth/LoginService';
 import { checkIfAdmin } from '../services/admin/UsersService';
 
+// Renderiza la pantalla Login y coordina sus datos de vista.
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
@@ -15,6 +21,7 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleLogin = async (e) => {
     e.preventDefault();
     setIsLoading(true);

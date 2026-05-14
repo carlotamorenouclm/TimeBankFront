@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Visual card for each service shown in the user catalog.
 
 import React from 'react';

@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Main user portal view: loads the profile summary, catalog, and purchase flow.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
@@ -14,6 +19,7 @@ const initialRequestForm = {
   message: '',
 };
 
+// Renderiza la pantalla DashboardUser y coordina sus datos de vista.
 const DashboardUser = () => {
   const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -50,12 +56,14 @@ const DashboardUser = () => {
     }
   };
 
+  // Renderiza la pantalla closeReviewsModal y coordina sus datos de vista.
   const closeReviewsModal = () => {
     setShowReviewsModal(false);
     setReviewsService(null);
     setServiceReviews([]);
     setReviewsError('');
   };
+  // Renderiza la pantalla loadDashboard y coordina sus datos de vista.
   const loadDashboard = async () => {
     try {
       setIsLoading(true);
@@ -74,6 +82,7 @@ const DashboardUser = () => {
     loadDashboard();
   }, []);
 
+  // Renderiza la pantalla openRequestModal y coordina sus datos de vista.
   const openRequestModal = (service) => {
     // Store the selected service so both follow-up modals can reuse it.
     setSelectedService(service);
@@ -81,11 +90,13 @@ const DashboardUser = () => {
     setShowRequestModal(true);
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleRequestFormChange = (event) => {
     const { name, value } = event.target;
     setRequestForm((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleContinueToPayment = () => {
     // Keep the payment modal closed until the required fields are filled in.
     if (!requestForm.scheduledAt) {
@@ -106,6 +117,7 @@ const DashboardUser = () => {
     setShowPaymentModal(true);
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleConfirmPurchase = async () => {
     if (!selectedService) return;
 
@@ -135,6 +147,7 @@ const DashboardUser = () => {
     }
   };
 
+  // Renderiza la pantalla closeSuccessModal y coordina sus datos de vista.
   const closeSuccessModal = () => {
     setShowSuccessModal(false);
     setSelectedService(null);

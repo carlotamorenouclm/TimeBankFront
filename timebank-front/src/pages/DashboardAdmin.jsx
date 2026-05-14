@@ -1,18 +1,28 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Panel de administracion para alternar entre lista de admins y lista de usuarios.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
+import { useSearchParams } from 'react-router-dom';
 import NavbarCustom from '../components/NavbarCustom';
 import UserListCard from '../components/UserListCard';
 import { deleteUser, getAllAdmins, getAllUsers, updateUserIsActive } from '../services/admin/UsersService';
 
+// Renderiza la pantalla DashboardAdmin y coordina sus datos de vista.
 const DashboardAdmin = () => {
-	const [activeView, setActiveView] = useState('admins');
+	const [searchParams, setSearchParams] = useSearchParams();
+	const initialView = searchParams.get('view') === 'users' ? 'users' : 'admins';
+	const [activeView, setActiveView] = useState(initialView);
 	const [admins, setAdmins] = useState([]);
 	const [users, setUsers] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [errorMessage, setErrorMessage] = useState('');
 	const [activeToggleId, setActiveToggleId] = useState(null);
 	const [activeDeleteId, setActiveDeleteId] = useState(null);
+	// Renderiza la pantalla loadDashboardData y coordina sus datos de vista.
 	const loadDashboardData = async () => {
 			setIsLoading(true);
 			setErrorMessage('');
@@ -37,6 +47,10 @@ const DashboardAdmin = () => {
 		loadDashboardData();
 	}, []);
 
+	useEffect(() => {
+		setActiveView(searchParams.get('view') === 'users' ? 'users' : 'admins');
+	}, [searchParams]);
+
 	const currentUsers = useMemo(() => {
 		return activeView === 'admins' ? admins : users;
 	}, [activeView, admins, users]);
@@ -44,6 +58,7 @@ const DashboardAdmin = () => {
 	const roleLabel = activeView === 'admins' ? 'Admin' : 'User';
 	const badgeVariant = activeView === 'admins' ? 'warning' : 'primary';
 
+	// Gestiona el evento de usuario y sincroniza el estado necesario.
 	const handleToggleActive = async (userId, nextIsActive) => {
 		setActiveToggleId(userId);
 		setErrorMessage('');
@@ -68,6 +83,7 @@ const DashboardAdmin = () => {
 		}
 	};
 
+	// Gestiona el evento de usuario y sincroniza el estado necesario.
 	const handleDeleteUser = async (userToDelete) => {
 		if (!userToDelete) return;
 		const fullName = `${userToDelete.firstName} ${userToDelete.lastName}`;
@@ -101,13 +117,13 @@ const DashboardAdmin = () => {
 					<div className="d-flex gap-2">
 						<Button
 							variant={activeView === 'admins' ? 'primary' : 'outline-primary'}
-							onClick={() => setActiveView('admins')}
+							onClick={() => setSearchParams({ view: 'admins' })}
 						>
 							Admin
 						</Button>
 						<Button
 							variant={activeView === 'users' ? 'primary' : 'outline-primary'}
-							onClick={() => setActiveView('users')}
+							onClick={() => setSearchParams({ view: 'users' })}
 						>
 							Users
 						</Button>

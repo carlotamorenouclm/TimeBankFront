@@ -1,3 +1,8 @@
+/*
+ * Define el arbol principal de rutas y protecciones de la aplicacion React.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Define el arbol principal de rutas del frontend y protege las zonas privadas.
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
@@ -18,6 +23,7 @@ import UserPortalLayout from './components/UserPortalLayout';
 import ProtectedRoute from './utils/ProtectedRoute'
 import { isAuthenticated } from './utils/AuthHelpers';
 
+// Define App como parte del flujo principal del frontend.
 function App() {
   return (
     <Routes>

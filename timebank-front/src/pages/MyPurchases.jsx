@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // User purchases view, keeping the same chat flow as history.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Form, Modal } from 'react-bootstrap';
@@ -18,6 +23,7 @@ import {
 } from '../services/portal/PortalService';
 import { getAuthenticatedUserId } from '../utils/AuthHelpers';
 
+// Renderiza la pantalla MyPurchases y coordina sus datos de vista.
 const MyPurchases = () => {
   const [transactions, setTransactions] = useState([]);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -44,6 +50,7 @@ const MyPurchases = () => {
   const [reviewsError, setReviewsError] = useState('');
 
   useEffect(() => {
+    // Renderiza la pantalla loadHistory y coordina sus datos de vista.
     const loadHistory = async () => {
       try {
         setIsLoading(true);
@@ -69,6 +76,7 @@ const MyPurchases = () => {
       return undefined;
     }
 
+    // Renderiza la pantalla refreshChat y coordina sus datos de vista.
     const refreshChat = async () => {
       try {
         const chatData = selectedTransaction.request_id
@@ -85,6 +93,7 @@ const MyPurchases = () => {
     return () => window.clearInterval(intervalId);
   }, [showChatModal, selectedTransaction?.chat_key, selectedTransaction?.request_id]);
 
+  // Renderiza la pantalla clearUnreadCount y coordina sus datos de vista.
   const clearUnreadCount = (transactionId) => {
     setTransactions((prev) =>
       prev.map((transaction) =>
@@ -95,6 +104,7 @@ const MyPurchases = () => {
     );
   };
 
+  // Renderiza la pantalla openChatModal y coordina sus datos de vista.
   const openChatModal = async (transaction) => {
     setSelectedTransaction(transaction);
     setChatDraft('');
@@ -122,6 +132,7 @@ const MyPurchases = () => {
     }
   };
 
+  // Renderiza la pantalla openReviewModal y coordina sus datos de vista.
   const openReviewModal = (transaction) => {
     setReviewTransaction(transaction);
     setReviewForm({ rating: '5', comment: '' });
@@ -131,6 +142,7 @@ const MyPurchases = () => {
     setShowReviewModal(true);
   };
 
+  // Renderiza la pantalla closeReviewModal y coordina sus datos de vista.
   const closeReviewModal = () => {
     setShowReviewModal(false);
     setReviewTransaction(null);
@@ -138,6 +150,7 @@ const MyPurchases = () => {
     setReviewError('');
   };
 
+  // Renderiza la pantalla openReviewsModal y coordina sus datos de vista.
   const openReviewsModal = async (transaction) => {
     setReviewsTransaction(transaction);
     setTransactionReviews([]);
@@ -156,6 +169,7 @@ const MyPurchases = () => {
     }
   };
 
+  // Renderiza la pantalla closeReviewsModal y coordina sus datos de vista.
   const closeReviewsModal = () => {
     setShowReviewsModal(false);
     setReviewsTransaction(null);
@@ -163,6 +177,7 @@ const MyPurchases = () => {
     setReviewsError('');
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleComplete = async (transaction) => {
     const requestId = transaction.request_id;
     if (!requestId) {
@@ -194,6 +209,7 @@ const MyPurchases = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleSubmitReview = async () => {
     if (!reviewTransaction) return;
 
@@ -234,6 +250,7 @@ const MyPurchases = () => {
     }
   };
 
+  // Renderiza la pantalla closeChatModal y coordina sus datos de vista.
   const closeChatModal = () => {
     setShowChatModal(false);
     setSelectedTransaction(null);
@@ -242,6 +259,7 @@ const MyPurchases = () => {
     setChatError('');
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleSendChatMessage = async () => {
     const trimmedMessage = chatDraft.trim();
     if ((!selectedTransaction?.request_id && !selectedTransaction?.chat_key) || !trimmedMessage) {

@@ -1,3 +1,8 @@
+/*
+ * Constantes compartidas para evitar valores repetidos en el frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Agrupa las imagenes usadas en la pagina Home.
 import homeImage1 from '../assets/home/home-image1.png';
 import homeImage2 from '../assets/home/home-image2.png';

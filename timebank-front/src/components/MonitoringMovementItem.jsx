@@ -1,8 +1,14 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Single movement row for the monitoring list.
 import React from 'react';
 import { Badge, ListGroup } from 'react-bootstrap';
 import getStatusBadge from '../utils/getStatusBadge';
 
+// Renderiza el componente MonitoringMovementItem con las propiedades recibidas.
 const MonitoringMovementItem = ({ item }) => {
 
   return (

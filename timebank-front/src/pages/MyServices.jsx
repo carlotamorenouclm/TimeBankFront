@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
@@ -22,6 +27,7 @@ const initialServiceForm = {
 const MAX_SERVICE_IMAGE_SIZE_MB = 8;
 const MAX_SERVICE_IMAGE_SIZE = MAX_SERVICE_IMAGE_SIZE_MB * 1024 * 1024;
 
+// Renderiza la pantalla MyServices y coordina sus datos de vista.
 const MyServices = () => {
   const [myServices, setMyServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
@@ -56,6 +62,7 @@ const MyServices = () => {
     }
   };
 
+  // Renderiza la pantalla closeReviewsModal y coordina sus datos de vista.
   const closeReviewsModal = () => {
     setShowReviewsModal(false);
     setReviewsService(null);
@@ -63,6 +70,7 @@ const MyServices = () => {
     setReviewsError('');
   };
 
+  // Renderiza la pantalla loadDashboard y coordina sus datos de vista.
   const loadDashboard = async () => {
     try {
       setIsLoading(true);
@@ -81,6 +89,7 @@ const MyServices = () => {
     loadDashboard();
   }, []);
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleServiceFormChange = (event) => {
     const { name, type, value, checked } = event.target;
     const nextValue = type === 'checkbox' ? checked : value;
@@ -97,6 +106,7 @@ const MyServices = () => {
     });
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleServiceImageChange = (event) => {
     const file = event.target.files?.[0];
 
@@ -133,6 +143,7 @@ const MyServices = () => {
     reader.readAsDataURL(file);
   };
 
+  // Renderiza la pantalla openPublishModal y coordina sus datos de vista.
   const openPublishModal = () => {
     // Reset the form so every new service starts from a clean draft.
     setServiceForm(initialServiceForm);
@@ -140,6 +151,7 @@ const MyServices = () => {
     setShowPublishModal(true);
   };
 
+  // Renderiza la pantalla openDeleteModal y coordina sus datos de vista.
   const openDeleteModal = (service) => {
     // Keep the selected owned service so the confirmation modal can delete it.
     setSelectedService(service);
@@ -147,11 +159,13 @@ const MyServices = () => {
     setShowDeleteModal(true);
   };
 
+  // Renderiza la pantalla closeDeleteModal y coordina sus datos de vista.
   const closeDeleteModal = () => {
     setShowDeleteModal(false);
     setSelectedService(null);
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handlePublishService = async () => {
     // Validate the minimum fields before sending the new service to the backend.
     if (
@@ -198,6 +212,7 @@ const MyServices = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleDeleteService = async () => {
     if (!selectedService) return;
 

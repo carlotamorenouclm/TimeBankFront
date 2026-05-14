@@ -1,9 +1,15 @@
+/*
+ * Estilos CSS asociados a la aplicacion y a sus componentes visuales.
+ *
+ * Comentarios generados para separar bloques visuales principales.
+ */
 /* Hoja global base del proyecto. Ahora mismo esta libre para estilos generales futuros. */
 
 :root {
 	--navbar-height: 70px;
 }
 
+/* Estilos del selector .alert.alert-danger. */
 .alert.alert-danger {
 	position: fixed;
 	top: calc(var(--navbar-height) + 1rem);
@@ -15,6 +21,7 @@
 	box-shadow: 0 12px 32px rgba(80, 20, 20, 0.22);
 }
 
+/* Estilos del selector .inbox-count-badge. */
 .inbox-count-badge {
 	display: inline-flex;
 	align-items: center;
@@ -30,6 +37,7 @@
 	line-height: 1;
 }
 
+/* Estilos del selector .user-sidebar-sticky. */
 .user-sidebar-sticky {
 	position: sticky;
 	top: var(--navbar-height);
@@ -38,6 +46,7 @@
 }
 
 @media (max-width: 767.98px) {
+/* Estilos del selector .user-sidebar-sticky. */
 	.user-sidebar-sticky {
 		position: static;
 		height: auto;

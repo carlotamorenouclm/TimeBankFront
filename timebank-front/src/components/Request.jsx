@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Tarjeta reutilizable para solicitudes recibidas en Inbox, pendientes o ya procesadas.
 import React from 'react';
 import { Card, Row, Col, Button, Badge } from 'react-bootstrap';
@@ -26,6 +31,7 @@ const statusConfig = {
   },
 };
 
+// Renderiza el componente Request con las propiedades recibidas.
 const Request = ({ request, onAccept, onReject }) => {
   const isPending = request.status === 'pending';
   const config = statusConfig[request.status] || statusConfig.pending;

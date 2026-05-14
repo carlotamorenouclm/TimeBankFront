@@ -1,6 +1,12 @@
+/*
+ * Funciones auxiliares compartidas por varias pantallas del frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import React from 'react';
 import { Badge } from 'react-bootstrap';
 
+// Aplica la utilidad de get status badge de forma reutilizable.
 const getStatusBadge = (status) => {
   const normalized = `${status || ''}`.toLowerCase();
   const label = status ? status.charAt(0).toUpperCase() + status.slice(1) : '-';

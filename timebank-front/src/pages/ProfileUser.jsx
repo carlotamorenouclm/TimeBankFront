@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +14,7 @@ import {
 } from '../services/portal/PortalService';
 import { clearAuthSession } from '../utils/AuthHelpers';
 
+// Renderiza la pantalla ProfileUser y coordina sus datos de vista.
 const ProfileUser = () => {
   const navigate = useNavigate();
   const [profile, setProfile] = useState({
@@ -26,6 +32,7 @@ const ProfileUser = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
+    // Renderiza la pantalla loadProfile y coordina sus datos de vista.
     const loadProfile = async () => {
       try {
         setIsLoading(true);
@@ -54,11 +61,13 @@ const ProfileUser = () => {
     loadProfile();
   }, []);
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleSave = async (event) => {
     event.preventDefault();
 
@@ -87,6 +96,7 @@ const ProfileUser = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleDeleteAccount = async () => {
     try {
       setIsSaving(true);

@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para separar bloques visuales principales.
+ */
 /* Estilos de las tarjetas de pasos de la home. */
 .card-home {
   border: 1px solid rgba(255, 255, 255, 0.05) !important;
@@ -6,6 +11,7 @@
   transition: transform 0.3s ease;
 }
 
+/* Estilos del selector .card-home:hover. */
 .card-home:hover {
   transform: translateY(-10px);
 }

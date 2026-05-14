@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Boton reutilizable con estilo redondeado usado por toda la interfaz.
 import React from 'react';
 import { Button } from 'react-bootstrap';

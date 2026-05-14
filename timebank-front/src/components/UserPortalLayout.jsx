@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { Outlet, useLocation } from 'react-router-dom';
@@ -7,6 +12,7 @@ import UserSidebarNav from './UserSidebarNav';
 import { getAvatarImage } from '../constants/avatarOptions';
 import { getPortalSummary } from '../services/portal/PortalService';
 
+// Renderiza el componente UserPortalLayout con las propiedades recibidas.
 const UserPortalLayout = () => {
   const [profile, setProfile] = useState({
     name: '',
@@ -22,6 +28,7 @@ const UserPortalLayout = () => {
   useEffect(() => {
     let isMounted = true;
 
+    // Renderiza el componente loadSummary con las propiedades recibidas.
     const loadSummary = async () => {
       try {
         setError('');

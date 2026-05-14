@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Navbar comun de la app: muestra accesos publicos o privados segun sesion.
 import React from 'react';
 import { Container, Navbar, Nav } from 'react-bootstrap';
@@ -7,15 +12,18 @@ import ButtonPill from './ButtonPill';
 import { isAuthenticated } from '../utils/AuthHelpers';
 import { checkIfAdmin } from '../services/admin/UsersService';
 
+// Renderiza el componente NavbarCustom con las propiedades recibidas.
 const NavbarCustom = () => {
   const navigate = useNavigate();
   const authenticated = isAuthenticated();
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     navigate('/');
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleGoToDashboard = async () => {
     const token = localStorage.getItem('access_token');
 

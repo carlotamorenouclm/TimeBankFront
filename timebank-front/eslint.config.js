@@ -1,3 +1,8 @@
+/*
+ * Centraliza la configuracion de entorno que usa la aplicacion.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'

@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 import React from 'react';
 import { Nav } from 'react-bootstrap';
 import { Link, useLocation } from 'react-router-dom';
@@ -16,6 +21,7 @@ const activeStyle = {
   color: 'white',
 };
 
+// Renderiza el componente normalizePath con las propiedades recibidas.
 const normalizePath = (pathname) =>
   pathname !== '/' && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 

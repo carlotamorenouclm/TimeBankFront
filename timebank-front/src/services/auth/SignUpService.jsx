@@ -1,9 +1,15 @@
+/*
+ * Contiene logica de negocio reutilizable entre rutas y consultas.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Servicio de alta de usuarios nuevos desde el formulario de registro.
 import { UserData } from '../../models/UserModel';
 import { API_URL } from '../../constants/API_paths';
 import { parseApiError } from '../../utils/UserHelpers';
 
 
+// Ejecuta la operacion de register user contra la API.
 export const registerUser = async ({ firstName, lastName, email, password }) => {
   try {
     if (!API_URL) {

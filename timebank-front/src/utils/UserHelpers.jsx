@@ -1,3 +1,8 @@
+/*
+ * Funciones auxiliares compartidas por varias pantallas del frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Helpers to normalize user responses and backend error payloads.
 export const extractArrayPayload = (payload) => {
   if (Array.isArray(payload)) {
@@ -19,6 +24,7 @@ export const extractArrayPayload = (payload) => {
   return [];
 };
 
+// Aplica la utilidad de normalize user de forma reutilizable.
 export const normalizeUser = (user, idx) => {
   const firstName = user.firstName || user.name || user.first_name || '';
   const lastName = user.lastName || user.surname || user.last_name || '';
@@ -40,6 +46,7 @@ export const normalizeUser = (user, idx) => {
   };
 };
 
+// Aplica la utilidad de validate api and access token de forma reutilizable.
 export const validateApiAndAccessToken = (apiUrl, accessToken) => {
   if (!apiUrl) {
     throw new Error('VITE_API_URL is not configured');
@@ -50,6 +57,7 @@ export const validateApiAndAccessToken = (apiUrl, accessToken) => {
   }
 };
 
+// Aplica la utilidad de parse api error de forma reutilizable.
 export const parseApiError = (responseData, status) => {
   const detail = responseData?.detail;
 

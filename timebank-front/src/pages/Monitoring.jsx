@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Admin monitoring view to track user transactions and wallet movements.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Badge, Button, Card, Col, Container, ListGroup, Row } from 'react-bootstrap';
@@ -15,11 +20,13 @@ import {
   updateAdminServiceVisibility
 } from '../services/admin/AdminMonitoringService';
 
+// Renderiza la pantalla Monitoring y coordina sus datos de vista.
 const Monitoring = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userId } = useParams();
   const user = location.state?.user;
+  const sourceView = location.state?.role === 'Admin' ? 'admins' : 'users';
   const [transactions, setTransactions] = useState([]);
   const [recharges, setRecharges] = useState([]);
   const [reviews, setReviews] = useState([]);
@@ -30,6 +37,7 @@ const Monitoring = () => {
   const [activeServiceActionId, setActiveServiceActionId] = useState(null);
 
   useEffect(() => {
+    // Renderiza la pantalla loadMonitoringData y coordina sus datos de vista.
     const loadMonitoringData = async () => {
       try {
         setIsLoading(true);
@@ -62,6 +70,7 @@ const Monitoring = () => {
   }, [userId, user?.id]);
 
   const movementItems = useMemo(() => {
+    // Renderiza la pantalla toTimestamp y coordina sus datos de vista.
     const toTimestamp = (value) => {
       const parsed = Date.parse(value);
       return Number.isNaN(parsed) ? 0 : parsed;
@@ -115,6 +124,7 @@ const Monitoring = () => {
 
   const userName = user ? `${user.firstName} ${user.lastName}` : 'User';
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleDeleteReview = async (review) => {
     const shouldDelete = window.confirm('Delete this review?');
     if (!shouldDelete) return;
@@ -131,6 +141,7 @@ const Monitoring = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleToggleServiceVisibility = async (service) => {
     try {
       setActiveServiceActionId(service.id);
@@ -146,6 +157,7 @@ const Monitoring = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleDeleteService = async (service) => {
     const shouldDelete = window.confirm(`Delete service "${service.title}"?`);
     if (!shouldDelete) return;
@@ -175,7 +187,7 @@ const Monitoring = () => {
             </p>
           </div>
           <div className="d-flex align-items-center gap-2">
-            <Button variant="outline-secondary" onClick={() => navigate(-1)}>
+            <Button variant="outline-secondary" onClick={() => navigate(`/dashboardadmin?view=${sourceView}`)}>
               Go back
             </Button>
           </div>

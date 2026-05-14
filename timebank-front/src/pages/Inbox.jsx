@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Bandeja de entrada del usuario para gestionar solicitudes recibidas.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Modal, Form, Button } from 'react-bootstrap';
@@ -8,6 +13,7 @@ import {
   rejectInboxRequest,
 } from '../services/portal/PortalService';
 
+// Renderiza la pantalla Inbox y coordina sus datos de vista.
 const Inbox = () => {
   const [requests, setRequests] = useState([]);
   const [showAcceptModal, setShowAcceptModal] = useState(false);
@@ -19,6 +25,7 @@ const Inbox = () => {
   const [acceptForm, setAcceptForm] = useState({ clarification: '' });
   const [rejectReason, setRejectReason] = useState('');
 
+  // Renderiza la pantalla normalizeRequests y coordina sus datos de vista.
   const normalizeRequests = (items = []) =>
     items.map((item) => ({
       ...item,
@@ -26,6 +33,7 @@ const Inbox = () => {
     }));
 
   useEffect(() => {
+    // Renderiza la pantalla loadInbox y coordina sus datos de vista.
     const loadInbox = async () => {
       try {
         setIsLoading(true);
@@ -43,18 +51,21 @@ const Inbox = () => {
     loadInbox();
   }, []);
 
+  // Renderiza la pantalla openAcceptModal y coordina sus datos de vista.
   const openAcceptModal = (request) => {
     setSelectedRequest(request);
     setAcceptForm({ clarification: '' });
     setShowAcceptModal(true);
   };
 
+  // Renderiza la pantalla openRejectModal y coordina sus datos de vista.
   const openRejectModal = (request) => {
     setSelectedRequest(request);
     setRejectReason('');
     setShowRejectModal(true);
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleAccept = async () => {
     if (!selectedRequest) return;
 
@@ -73,6 +84,7 @@ const Inbox = () => {
     }
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleReject = async () => {
     if (!selectedRequest) return;
 

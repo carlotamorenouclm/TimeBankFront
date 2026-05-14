@@ -1,3 +1,8 @@
+/*
+ * Contiene logica de negocio reutilizable entre rutas y consultas.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Servicios del panel de administracion para listar y actualizar cuentas.
 import {
   API_URL,
@@ -14,6 +19,7 @@ import {
   extractArrayPayload, normalizeUser, validateApiAndAccessToken, parseApiError} from '../../utils/UserHelpers';
 
 
+// Ejecuta la operacion de fetch users from path contra la API.
 const fetchUsersFromPath = async (path, accessToken) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -34,6 +40,7 @@ const fetchUsersFromPath = async (path, accessToken) => {
   return extractArrayPayload(responseData).map(normalizeUser);
 };
 
+// Ejecuta la operacion de get all users contra la API.
 export const getAllUsers = async (accessToken) => {
   try {
     return await fetchUsersFromPath(USERS_PATH, accessToken);
@@ -43,6 +50,7 @@ export const getAllUsers = async (accessToken) => {
   }
 };
 
+// Ejecuta la operacion de get all admins contra la API.
 export const getAllAdmins = async (accessToken) => {
   try {
     return await fetchUsersFromPath(ADMINS_PATH, accessToken);
@@ -52,6 +60,7 @@ export const getAllAdmins = async (accessToken) => {
   }
 };
 
+// Ejecuta la operacion de check if admin contra la API.
 export const checkIfAdmin = async (accessToken) => {
 	try {
 		validateApiAndAccessToken(API_URL, accessToken);
@@ -76,6 +85,7 @@ export const checkIfAdmin = async (accessToken) => {
 	}
 };
 
+// Ejecuta la operacion de update user role contra la API.
 export const updateUserRole = async ({ userId, newRole, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -102,6 +112,7 @@ export const updateUserRole = async ({ userId, newRole, accessToken }) => {
   return true;
 };
 
+// Ejecuta la operacion de update user info contra la API.
 export const updateUserInfo = async ({ userId, firstName, lastName, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -126,6 +137,7 @@ export const updateUserInfo = async ({ userId, firstName, lastName, accessToken 
   return true;
 };
 
+// Ejecuta la operacion de update user is active contra la API.
 export const updateUserIsActive = async ({ userId, isActive, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -152,6 +164,7 @@ export const updateUserIsActive = async ({ userId, isActive, accessToken }) => {
   return true;
 };
 
+// Ejecuta la operacion de get user wallet contra la API.
 export const getUserWallet = async ({ userId, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -174,6 +187,7 @@ export const getUserWallet = async ({ userId, accessToken }) => {
   return responseData;
 };
 
+// Ejecuta la operacion de update user coins contra la API.
 export const updateUserCoins = async ({ userId, coins, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 
@@ -200,6 +214,7 @@ export const updateUserCoins = async ({ userId, coins, accessToken }) => {
   return responseData;
 };
 
+// Ejecuta la operacion de delete user contra la API.
 export const deleteUser = async ({ userId, accessToken }) => {
   validateApiAndAccessToken(API_URL, accessToken);
 

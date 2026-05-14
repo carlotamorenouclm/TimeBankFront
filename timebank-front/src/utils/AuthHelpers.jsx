@@ -1,3 +1,8 @@
+/*
+ * Funciones auxiliares compartidas por varias pantallas del frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Utilidades de autenticacion para validar el JWT guardado en localStorage.
 const decodeBase64Url = (base64Url) => {
   const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -5,16 +10,19 @@ const decodeBase64Url = (base64Url) => {
   return atob(padded);
 };
 
+// Aplica la utilidad de clear auth session de forma reutilizable.
 const clearAuthSession = () => {
   localStorage.removeItem('access_token');
 };
 
+// Aplica la utilidad de redirect to login de forma reutilizable.
 const redirectToLogin = () => {
   if (window.location.pathname !== '/login') {
     window.location.assign('/login');
   }
 };
 
+// Aplica la utilidad de is authenticated de forma reutilizable.
 const isAuthenticated = () => {
   const token = localStorage.getItem('access_token');
   if (!token) return false;
@@ -32,6 +40,7 @@ const isAuthenticated = () => {
   }
 };
 
+// Aplica la utilidad de get auth payload de forma reutilizable.
 const getAuthPayload = () => {
   const token = localStorage.getItem('access_token');
   if (!token) return null;
@@ -46,6 +55,7 @@ const getAuthPayload = () => {
   }
 };
 
+// Aplica la utilidad de get authenticated user id de forma reutilizable.
 const getAuthenticatedUserId = () => {
   const payload = getAuthPayload();
   if (!payload) return null;

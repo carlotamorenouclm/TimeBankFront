@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Vista de wallet del usuario: muestra saldo, recargas y permite anadir saldo.
 import React, { useCallback, useEffect, useState } from 'react';
 import { Row, Col, Card, Button, Form, Modal } from 'react-bootstrap';
@@ -6,6 +11,7 @@ import {
   getWallet,
 } from '../services/portal/PortalService';
 
+// Renderiza la pantalla Wallet y coordina sus datos de vista.
 const Wallet = () => {
   const [balance, setBalance] = useState(0);
   const [status, setStatus] = useState('Active');
@@ -47,6 +53,7 @@ const Wallet = () => {
   }, [applyWalletData]);
 
   useEffect(() => {
+    // Renderiza la pantalla loadWallet y coordina sus datos de vista.
     const loadWallet = async () => {
       try {
         setIsLoading(true);
@@ -83,6 +90,7 @@ const Wallet = () => {
     loadWallet();
   }, [applyWalletData, waitForWebhookWalletUpdate]);
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleRecharge = async () => {
     const numericAmount = Number(amount);
 

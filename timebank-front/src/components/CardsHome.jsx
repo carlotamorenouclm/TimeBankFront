@@ -1,8 +1,14 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Renderiza el bloque de tarjetas informativas de la pagina Home.
 import React from 'react';
 import { Row, Col, Card } from 'react-bootstrap';
 import './CardsHome.css';
 
+// Renderiza el componente CardsHome con las propiedades recibidas.
 const CardsHome = ({ steps, backgroundColor }) => {
   return (
     <Row className="g-4">

@@ -1,7 +1,13 @@
+/*
+ * Contiene logica de negocio reutilizable entre rutas y consultas.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Servicio encargado del login contra /auth/token.
 import { API_URL } from '../../constants/API_paths';
 import { parseApiError } from '../../utils/UserHelpers';
 
+// Ejecuta la operacion de login user contra la API.
 export const loginUser = async ({ email, password }) => {
 	try {
 		if (!API_URL) {

@@ -1,9 +1,15 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Admin panel card that summarizes one user and opens the edit page.
 import React from 'react';
 import { Badge, Button, Card } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './UserListCard.css';
 
+// Renderiza el componente UserListCard con las propiedades recibidas.
 const UserListCard = ({ user, roleLabel, badgeVariant, onToggleActive, isToggling, onDelete, isDeleting }) => {
   const navigate = useNavigate();
   const fullName = `${user.firstName} ${user.lastName}`;
@@ -12,10 +18,12 @@ const UserListCard = ({ user, roleLabel, badgeVariant, onToggleActive, isTogglin
   const toggleVariant = isActive ? '' : 'outline-success';
   const toggleClassName = isActive ? 'btn-outline-orange' : '';
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleEditUser = () => {
     navigate(`/users/${user.id}/edit`, { state: { user, role: roleLabel } });
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleMonitoring = () => {
     navigate(`/users/${user.id}/monitoring`, { state: { user, role: roleLabel } });
   };

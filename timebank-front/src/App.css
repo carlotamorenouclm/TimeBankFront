@@ -1,3 +1,8 @@
+/*
+ * Estilos CSS asociados a la aplicacion y a sus componentes visuales.
+ *
+ * Comentarios generados para separar bloques visuales principales.
+ */
 /* Variables visuales compartidas y pequenos ajustes globales de layout. */
 @import url('https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap');
 
@@ -9,6 +14,7 @@
   --text-muted: #94a3b8;
 }
 
+/* Estilos del selector html. */
 html {
   overflow-y: scroll;
   scrollbar-gutter: stable;

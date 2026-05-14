@@ -1,3 +1,8 @@
+/*
+ * Constantes compartidas para evitar valores repetidos en el frontend.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Local avatar gallery used by the profile screen and private sidebars.
 import avatar1 from '../assets/Avatar/Avatar1.jpeg';
 import avatar2 from '../assets/Avatar/Avatar2.jpeg';
@@ -27,5 +32,6 @@ export const avatarOptions = [
   { key: 'avatar_12', label: 'Avatar 12', image: avatar12 },
 ];
 
+// Define getAvatarImage como parte del flujo principal del frontend.
 export const getAvatarImage = (avatarKey) =>
   avatarOptions.find((avatar) => avatar.key === avatarKey)?.image || null;

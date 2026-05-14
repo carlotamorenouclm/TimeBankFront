@@ -1,14 +1,21 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para separar bloques visuales principales.
+ */
 /* Estilos especificos de las tarjetas del dashboard de administracion. */
 .user-list-card {
   border-radius: 18px;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
+/* Estilos del selector .user-list-card:hover. */
 .user-list-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 0.75rem 1.25rem rgba(2, 58, 188, 0.15) !important;
 }
 
+/* Estilos del selector .edit-user-button. */
 .edit-user-button {
   display: inline-flex;
   align-items: center;
@@ -16,12 +23,14 @@
   font-weight: 600;
 }
 
+/* Estilos del selector .btn-outline-orange. */
 .btn-outline-orange {
   color: #d66d0b;
   border-color: #d66d0b;
 }
 
 .btn-outline-orange:hover,
+/* Estilos del selector .btn-outline-orange:focus. */
 .btn-outline-orange:focus {
   color: #fff;
   background-color: #d66d0b;

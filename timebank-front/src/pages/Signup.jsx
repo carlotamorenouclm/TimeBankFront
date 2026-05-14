@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Pantalla de registro de nuevos usuarios de la plataforma.
 import React, { useState } from 'react';
 import { Container, Row, Col, Form } from 'react-bootstrap';
@@ -7,6 +12,7 @@ import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
 import { registerUser } from '../services/auth/SignUpService';
 
+// Renderiza la pantalla Signup y coordina sus datos de vista.
 const Signup = () => {
   const navigate = useNavigate();
   const [firstName, setFirstName] = useState('');
@@ -16,6 +22,7 @@ const Signup = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleRegister = (e) => {
     e.preventDefault();
     setIsLoading(true);

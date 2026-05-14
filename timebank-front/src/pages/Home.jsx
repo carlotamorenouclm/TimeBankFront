@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Landing publica del proyecto con hero, pasos de uso y acceso a registro.
 import React from 'react';
 import { Container, Navbar, Nav, Button, Row, Col, Card } from 'react-bootstrap';
@@ -9,6 +14,7 @@ import ButtonPill from '../components/ButtonPill';
 import NavbarCustom from '../components/NavbarCustom';
 
 
+// Renderiza la pantalla HomePage y coordina sus datos de vista.
 const HomePage = () => {
   return (
     <div style={{ fontFamily: "'Inter', sans-serif", color: '#2d3436' }}>

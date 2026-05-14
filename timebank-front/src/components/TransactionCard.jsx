@@ -1,3 +1,8 @@
+/*
+ * Componente reutilizable de interfaz para mantener las pantallas mas simples.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Individual card used to render one movement in the exchange history.
 import React from 'react';
 import { Card, Button } from 'react-bootstrap';

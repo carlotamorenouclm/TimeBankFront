@@ -1,3 +1,8 @@
+/*
+ * Pagina React que compone estado, servicios y componentes de interfaz.
+ *
+ * Comentarios generados para documentar la intencion de cada bloque principal.
+ */
 // Admin panel form used to edit personal data and role.
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Col, Container, Form, Row } from 'react-bootstrap';
@@ -15,6 +20,7 @@ import {
   validateEditUserInput
 } from '../utils/Normalized';
 
+// Renderiza la pantalla EditUser y coordina sus datos de vista.
 const EditUser = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -22,6 +28,7 @@ const EditUser = () => {
 
   const selectedUser = useMemo(() => location.state?.user || null, [location.state]);
   const initialRole = useMemo(() => normalizeRole(location.state?.role || 'User'), [location.state]);
+  const sourceView = location.state?.role === 'Admin' ? 'admins' : 'users';
   const initialFirstName = useMemo(() => normalizeText(selectedUser?.firstName), [selectedUser]);
   const initialLastName = useMemo(() => normalizeText(selectedUser?.lastName), [selectedUser]);
 
@@ -41,6 +48,7 @@ const EditUser = () => {
   const hasSuccess = Boolean(statusMessage) && !hasError;
 
   useEffect(() => {
+    // Renderiza la pantalla loadWallet y coordina sus datos de vista.
     const loadWallet = async () => {
       try {
         const token = localStorage.getItem('access_token');
@@ -56,11 +64,13 @@ const EditUser = () => {
     loadWallet();
   }, [userId]);
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Gestiona el evento de usuario y sincroniza el estado necesario.
   const handleSubmit = async (event) => {
     event.preventDefault();
     setStatusMessage('');
@@ -227,7 +237,7 @@ const EditUser = () => {
                       <Button type="submit" variant="primary" disabled={isSaving}>
                         {isSaving ? 'Saving...' : 'Save changes'}
                       </Button>
-                      <Button type="button" variant="outline-secondary" onClick={() => navigate('/dashboardadmin')}>
+                      <Button type="button" variant="outline-secondary" onClick={() => navigate(`/dashboardadmin?view=${sourceView}`)}>
                         Go back
                       </Button>
                     </div>
