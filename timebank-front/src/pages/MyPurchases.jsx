@@ -13,6 +13,7 @@ import {
   completeRequest,
   getHistory,
   getTransactionReviews,
+  markHistoryNotificationsRead,
   submitReview,
 } from '../services/portal/PortalService';
 import { getAuthenticatedUserId } from '../utils/AuthHelpers';
@@ -51,6 +52,8 @@ const MyPurchases = () => {
         const historyData = await getHistory();
         const items = historyData?.transactions || [];
         setTransactions(items.filter((transaction) => transaction.type === 'Purchase'));
+        await markHistoryNotificationsRead('Purchase');
+        window.dispatchEvent(new Event('portal-summary-refresh'));
       } catch (loadError) {
         setError(loadError.message || 'Error loading history');
       } finally {
@@ -72,6 +75,7 @@ const MyPurchases = () => {
           ? await getChatMessages(selectedTransaction.request_id)
           : await getThreadMessages(selectedTransaction.chat_key);
         setChatMessages(chatData?.messages || []);
+        window.dispatchEvent(new Event('portal-summary-refresh'));
       } catch {
         // Keep the current conversation visible if one background refresh fails.
       }
@@ -110,6 +114,7 @@ const MyPurchases = () => {
         : await getThreadMessages(transaction.chat_key);
       setChatMessages(chatData?.messages || []);
       clearUnreadCount(transaction.id);
+      window.dispatchEvent(new Event('portal-summary-refresh'));
     } catch (loadError) {
       setChatError(loadError.message || 'Error loading messages');
     } finally {

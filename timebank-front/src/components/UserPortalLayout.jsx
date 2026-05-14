@@ -13,6 +13,8 @@ const UserPortalLayout = () => {
     email: '',
     avatar_key: null,
     pending_inbox_count: 0,
+    pending_purchases_count: 0,
+    pending_sales_count: 0,
   });
   const [error, setError] = useState('');
   const { pathname } = useLocation();
@@ -33,10 +35,12 @@ const UserPortalLayout = () => {
     };
 
     loadSummary();
+    const intervalId = window.setInterval(loadSummary, 5000);
     window.addEventListener('portal-summary-refresh', loadSummary);
 
     return () => {
       isMounted = false;
+      window.clearInterval(intervalId);
       window.removeEventListener('portal-summary-refresh', loadSummary);
     };
   }, []);
@@ -73,7 +77,11 @@ const UserPortalLayout = () => {
                 email={profile.email}
                 linkEnabled={linkEnabled}
               />
-              <UserSidebarNav inboxCount={profile.pending_inbox_count || 0} />
+              <UserSidebarNav
+                inboxCount={profile.pending_inbox_count || 0}
+                purchasesCount={profile.pending_purchases_count || 0}
+                salesCount={profile.pending_sales_count || 0}
+              />
             </div>
           </Col>
 

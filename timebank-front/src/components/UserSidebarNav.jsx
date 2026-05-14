@@ -19,9 +19,18 @@ const activeStyle = {
 const normalizePath = (pathname) =>
   pathname !== '/' && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
 
-const UserSidebarNav = ({ inboxCount = 0 }) => {
+const UserSidebarNav = ({
+  inboxCount = 0,
+  purchasesCount = 0,
+  salesCount = 0,
+}) => {
   const { pathname } = useLocation();
   const currentPath = normalizePath(pathname);
+  const notificationCounts = {
+    '/my-purchases': purchasesCount,
+    '/my-sales': salesCount,
+    '/inbox': inboxCount,
+  };
 
   return (
     <Nav className="flex-column">
@@ -37,8 +46,8 @@ const UserSidebarNav = ({ inboxCount = 0 }) => {
             style={isActive ? activeStyle : undefined}
           >
             <span>{item.label}</span>
-            {item.to === '/inbox' && inboxCount > 0 && (
-              <span className="inbox-count-badge">{inboxCount}</span>
+            {notificationCounts[item.to] > 0 && (
+              <span className="inbox-count-badge">{notificationCounts[item.to]}</span>
             )}
           </Nav.Link>
         );

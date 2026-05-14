@@ -112,13 +112,23 @@ const TransactionCard = ({
                 </Button>
               )}
               {showViewReviews && (
-                <Button
-                  variant="outline-primary"
-                  size="sm"
-                  onClick={() => onViewReviews?.(transaction)}
-                >
-                  See Reviews
-                </Button>
+                <>
+                  <Button
+                    variant="outline-primary"
+                    size="sm"
+                    onClick={() => onViewReviews?.(transaction)}
+                  >
+                    See Review
+                  </Button>
+                  {transaction.has_unseen_review && (
+                    <span
+                      className="d-inline-flex align-items-center fw-bold fst-italic text-danger"
+                      aria-label="New review received"
+                    >
+                      Rated ‼️
+                    </span>
+                  )}
+                </>
               )}
               <Button
                 variant="primary"

@@ -20,6 +20,12 @@ export const getDashboardServices = () => apiRequest('/portal/dashboard');
 
 export const getHistory = () => apiRequest('/portal/history');
 
+export const markHistoryNotificationsRead = (transactionType) =>
+  apiRequest('/portal/history/notifications/read', {
+    method: 'POST',
+    body: JSON.stringify({ transaction_type: transactionType }),
+  });
+
 export const createServiceRequest = (serviceOfferId, payload) =>
   apiRequest(`/portal/services/${serviceOfferId}/request`, {
     method: 'POST',
