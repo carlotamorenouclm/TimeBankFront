@@ -86,10 +86,6 @@ const Login = () => {
                     />
                   </Form.Group>
 
-                  {/* Forgot Password */}
-                  <div className="text-end mb-4">
-                    <Link to="/forgot-password" style={{ color: 'var(--blue)', textDecoration: 'none', fontSize: '0.9rem' }}>Forgot password?</Link></div>
-
                 {/* Error Message */}
                   {error && (
                     <div className="alert alert-danger mb-4" role="alert">
