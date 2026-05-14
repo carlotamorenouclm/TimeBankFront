@@ -2,7 +2,7 @@
 
 Frontend of the **TimeBank** web application developed for the Web Systems Development laboratory assignment.
 
-TimeBank lets users exchange services with other people using a virtual currency called **time credits** or **coins**. Users can publish services, request services, manage received requests, recharge their wallet, and review their transaction history.
+TimeBank lets users exchange services with other people using a virtual currency called **time credits** or **coins**. Users can publish services, request services, manage received requests, recharge their wallet, chat about transactions, complete requests, and review services.
 
 ## Repository
 
@@ -16,16 +16,19 @@ TimeBank lets users exchange services with other people using a virtual currency
 - JWT session stored in browser local storage.
 - Role-based redirection to user or admin dashboard.
 - Protected user dashboard.
-- Service catalog with buy and sell views.
+- Service catalog with separate dashboard, owned services, purchases, and sales views.
 - Service request and payment confirmation flow.
 - Service publication and deletion.
 - User inbox to accept or reject received requests.
-- Wallet balance and recharge flow.
-- Transaction history filters.
+- Request completion from purchase and sale history.
+- Purchase and sale notification counters for pending history updates.
+- Wallet balance and Stripe Checkout recharge flow.
+- Purchase and sale transaction history.
 - Chat from transaction history between buyer and seller.
 - Unread message badge on history transactions.
+- Service ratings and transaction reviews.
 - User profile edition and account deletion.
-- Admin dashboard for viewing users and administrators.
+- Admin dashboard for viewing users and administrators, editing accounts, changing roles, enabling/disabling users, editing wallet balances, monitoring user activity, and moderating published services.
 
 ## Tech Stack
 
@@ -60,13 +63,17 @@ timebank-front/
 | `/` | Public | Home page with project introduction. |
 | `/login` | Public | Login form. |
 | `/signup` | Public | Registration form. |
-| `/dashboarduser` | Authenticated user | User service catalog and service publication area. |
-| `/history` | Authenticated user | Purchase and sale transaction history. |
+| `/dashboarduser` | Authenticated user | Service catalog with services published by other users. |
+| `/my-services` | Authenticated user | Current user's published services, including publishing, deletion, and service reviews. |
+| `/my-purchases` | Authenticated user | Purchase history with chat, completion, and review actions. |
+| `/my-sales` | Authenticated user | Sale history with chat, completion, and review visibility. |
 | `/inbox` | Authenticated user | Received service requests. |
 | `/wallet` | Authenticated user | Wallet balance and recharge page. |
 | `/profile` | Authenticated user | Profile edition and account deletion. |
 | `/dashboardadmin` | Authenticated admin | Administration panel. |
+| `/monitoring` | Authenticated admin | General monitoring entry screen. |
 | `/users/:userId/edit` | Authenticated admin | User edition screen. |
+| `/users/:userId/monitoring` | Authenticated admin | User monitoring screen with movements, wallet recharges, transactions, and reviews. |
 
 ## Environment Variables
 
@@ -77,6 +84,8 @@ VITE_API_URL=http://localhost:8000
 ```
 
 This value must point to the running backend API.
+
+Wallet recharges use Stripe Checkout through the backend. The frontend does not need a Stripe publishable key in the current redirect-based integration.
 
 ## Installation
 
@@ -121,11 +130,18 @@ The frontend uses `VITE_API_URL` as the API base URL and consumes these main bac
 - `/portal/services` for publishing services.
 - `/portal/services/{service_offer_id}/request` for service requests.
 - `/portal/inbox` for received requests.
-- `/portal/wallet` for balance and recharges.
+- `/portal/requests/{request_id}/complete` for marking accepted requests as completed.
+- `/portal/history/notifications/read` for clearing purchase or sale history notification counters.
+- `/portal/wallet` for wallet balance and recharge history.
+- `/portal/wallet/checkout-session` for starting Stripe Checkout wallet recharges.
+- `/portal/stripe/webhook` for backend-side Stripe confirmation; wallet credits are added only after the signed webhook.
 - `/portal/history` for transaction history.
+- `/reviews`, `/reviews/{transaction_id}`, and `/reviews/services/{service_offer_id}` for creating and reading reviews.
 - `/chat/requests/{request_id}/messages` for request-linked chat messages.
 - `/chat/threads/{thread_key}/messages` for history-linked chat messages.
 - `/admins` and `/users` for administration views.
+- `/admins/updateRole/{user_id}`, `/admins/update/is-active/{user_id}`, and `/admins/wallet/balance/{user_id}` for administrator account management.
+- `/admins/wallet/history`, `/admins/transaction/history`, `/admins/reviews`, and `/admins/services` for administrator monitoring and moderation.
 
 Protected requests include this header:
 
@@ -144,55 +160,5 @@ Authorization: Bearer <access_token>
 7. Admin users go to `/dashboardadmin`.
 
 ## Regular User Guide
-
-Catalog:
-
-1. Open the dashboard.
-2. Use `Buy` to view services published by other users.
-3. Use `Sell` to view services published by the current user.
-4. Click `Request` to request a service.
-5. Fill in date, address data when needed, and an optional message.
-6. Confirm payment to create the request.
-
-Publish a service:
-
-1. Click `Publish service`.
-2. Fill in title, description, availability, service location, price, and image.
-3. Confirm with `Publish`.
-
-Inbox:
-
-1. Open `Inbox`.
-2. Review pending requests.
-3. Accept a request with an optional clarification.
-4. Reject a request with a required reason.
-
-Wallet:
-
-1. Open `Wallet`.
-2. Review current balance and previous recharges.
-3. Choose a quick recharge amount or enter a custom amount.
-4. Confirm the recharge.
-
-History chat:
-
-1. Open `History`.
-2. Use the `Purchases`, `Sales`, or `All` filters to find a transaction.
-3. Click `Chat` on a transaction card to talk with the other user.
-4. Messages are stored in the backend and can be read by both buyer and seller.
-5. When a transaction has unread messages, a numbered badge appears next to its `Pending` or `Completed` status.
-6. Opening the chat marks received messages as read and clears the badge for that transaction.
-
-Profile:
-
-1. Open the profile from the avatar area.
-2. Update name, surname, email, or avatar.
-3. Save changes.
-4. Delete the account only when the user should be permanently removed.
-
-## Admin Guide
-
-1. Log in with an admin account.
-2. Open the administration dashboard.
-3. Switch between `Ver administradores` and `Ver usuarios`.
-4. Review user cards and manage account data or roles through the admin flows.
+Youtube list with all the user guide videos:
+https://www.youtube.com/playlist?list=PL5ISQmiP9ucbDl44ZIRndhnTX8tamhMLy 
