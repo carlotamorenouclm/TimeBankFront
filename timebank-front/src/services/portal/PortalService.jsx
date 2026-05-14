@@ -81,8 +81,3 @@ export const createWalletCheckoutSession = (amount) =>
     method: 'POST',
     body: JSON.stringify({ amount }),
   });
-
-export const confirmWalletCheckoutSession = (sessionId) =>
-  apiRequest(`/portal/wallet/checkout-session/${encodeURIComponent(sessionId)}/confirm`, {
-    method: 'POST',
-  });

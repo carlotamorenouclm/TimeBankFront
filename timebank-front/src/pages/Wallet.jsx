@@ -1,8 +1,7 @@
 // Vista de wallet del usuario: muestra saldo, recargas y permite anadir saldo.
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Row, Col, Card, Button, Form, Modal } from 'react-bootstrap';
 import {
-  confirmWalletCheckoutSession,
   createWalletCheckoutSession,
   getWallet,
 } from '../services/portal/PortalService';
@@ -18,11 +17,34 @@ const Wallet = () => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
-  const applyWalletData = (walletData) => {
+  const applyWalletData = useCallback((walletData) => {
     setBalance(walletData?.balance || 0);
     setStatus(walletData?.status || 'Active');
     setRecharges(walletData?.recharges || []);
-  };
+  }, []);
+
+  const waitForWebhookWalletUpdate = useCallback(async (initialWalletData) => {
+    const initialBalance = initialWalletData?.balance || 0;
+    const initialRechargeCount = initialWalletData?.recharges?.length || 0;
+
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      await new Promise((resolve) => {
+        setTimeout(resolve, 1500);
+      });
+
+      const updatedWalletData = await getWallet();
+      applyWalletData(updatedWalletData);
+
+      const updatedBalance = updatedWalletData?.balance || 0;
+      const updatedRechargeCount = updatedWalletData?.recharges?.length || 0;
+      if (updatedBalance > initialBalance || updatedRechargeCount > initialRechargeCount) {
+        setMessage('Payment confirmed. Your coins were added to the wallet.');
+        return;
+      }
+    }
+
+    setMessage('Payment completed in Stripe. The webhook is still processing; refresh the wallet in a few seconds.');
+  }, [applyWalletData]);
 
   useEffect(() => {
     const loadWallet = async () => {
@@ -37,18 +59,20 @@ const Wallet = () => {
         let walletData;
 
         if (checkoutSessionId) {
-          walletData = await confirmWalletCheckoutSession(checkoutSessionId);
-          setMessage('Payment confirmed. Your coins were added to the wallet.');
+          walletData = await getWallet();
+          setMessage('Payment completed in Stripe. Waiting for webhook confirmation...');
+          applyWalletData(walletData);
           window.history.replaceState({}, document.title, window.location.pathname);
+          await waitForWebhookWalletUpdate(walletData);
         } else {
           walletData = await getWallet();
           if (wasCancelled) {
             setMessage('Payment cancelled. No coins were added.');
             window.history.replaceState({}, document.title, window.location.pathname);
           }
-        }
 
-        applyWalletData(walletData);
+          applyWalletData(walletData);
+        }
       } catch (loadError) {
         setError(loadError.message || 'Error loading wallet');
       } finally {
@@ -57,7 +81,7 @@ const Wallet = () => {
     };
 
     loadWallet();
-  }, []);
+  }, [applyWalletData, waitForWebhookWalletUpdate]);
 
   const handleRecharge = async () => {
     const numericAmount = Number(amount);
