@@ -1,6 +1,6 @@
 # Time Bank
 
-![University of Castilla-La Mancha logo](uclm.png)
+![](uclm.png)
 
 **UNIVERSITY OF CASTILLA-LA MANCHA**
 
@@ -58,7 +58,8 @@ The system is divided into two repositories:
 
 ## Content Diagram
 
-![Time Bank content diagram](Content_Diagram.png)
+![](Content_Diagram.png)
+![](Content_Diagram2-1.png)
 
 ### Main Entities
 
@@ -87,11 +88,11 @@ The system is divided into two repositories:
 
 ## Navigation Diagram
 
-![Time Bank navigation diagram](Navigation_Diagram.png)
+![](Navigation_Diagram.png)
 
 ## Presentation Diagram
 
-![Time Bank presentation diagram](Presentation_Diagram.png)
+![](Presentation_Diagram.png)
 
 ## API Dictionary
 
