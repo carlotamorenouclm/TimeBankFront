@@ -61,7 +61,7 @@ const HomePage = () => {
       {/* --- FOOTER --- */}
       <footer className="bg-dark text-white py-4 mt-5">
         <Container className="text-center">
-          <p className="mb-0">© 2026 TimeBank. Construyendo comunidad minuto a minuto.</p>
+          <p className="mb-0">© 2026 TimeBank. Building community minute by minute.</p>
         </Container>
       </footer>
 

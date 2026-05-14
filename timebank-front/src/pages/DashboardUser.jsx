@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
-import { getServiceImage } from '../constants/serviceImages';
 import {createServiceRequest, getDashboardServices, getServiceReviews,} from '../services/portal/PortalService';
 import RatingStars from '../components/RatingStars';
 
@@ -174,7 +173,7 @@ const DashboardUser = () => {
                     .filter(Boolean)
                     .join(' · ')}
                   price={`${service.price} coins`}
-                  image={getServiceImage(service.image_key)}
+                  image={service.image_key}
                   actionLabel="Request"
                   actionDisabled={false}
                   onAction={() => openRequestModal(service)}

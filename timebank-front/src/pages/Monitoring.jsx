@@ -6,10 +6,13 @@ import NavbarCustom from '../components/NavbarCustom';
 import MonitoringMovementItem from '../components/MonitoringMovementItem';
 import RatingStars from '../components/RatingStars';
 import {
+  deleteAdminService,
   deleteAdminReview,
+  getAdminUserServices,
   getAdminUserReviews,
   getAdminTransactionHistory,
-  getAdminWalletHistory
+  getAdminWalletHistory,
+  updateAdminServiceVisibility
 } from '../services/admin/AdminMonitoringService';
 
 const Monitoring = () => {
@@ -20,9 +23,11 @@ const Monitoring = () => {
   const [transactions, setTransactions] = useState([]);
   const [recharges, setRecharges] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [services, setServices] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [deletingReviewId, setDeletingReviewId] = useState(null);
+  const [activeServiceActionId, setActiveServiceActionId] = useState(null);
 
   useEffect(() => {
     const loadMonitoringData = async () => {
@@ -35,15 +40,17 @@ const Monitoring = () => {
           throw new Error('Missing user id for monitoring');
         }
 
-        const [historyData, walletData, reviewsData] = await Promise.all([
+        const [historyData, walletData, reviewsData, servicesData] = await Promise.all([
           getAdminTransactionHistory(resolvedUserId),
           getAdminWalletHistory(resolvedUserId),
-          getAdminUserReviews(resolvedUserId)
+          getAdminUserReviews(resolvedUserId),
+          getAdminUserServices(resolvedUserId)
         ]);
 
         setTransactions(historyData?.transactions || []);
         setRecharges(walletData?.recharges || []);
         setReviews(Array.isArray(reviewsData) ? reviewsData : []);
+        setServices(Array.isArray(servicesData) ? servicesData : []);
       } catch (loadError) {
         setError(loadError.message || 'Error loading monitoring data');
       } finally {
@@ -109,7 +116,7 @@ const Monitoring = () => {
   const userName = user ? `${user.firstName} ${user.lastName}` : 'User';
 
   const handleDeleteReview = async (review) => {
-    const shouldDelete = window.confirm('Eliminar esta reseña?');
+    const shouldDelete = window.confirm('Delete this review?');
     if (!shouldDelete) return;
 
     try {
@@ -121,6 +128,37 @@ const Monitoring = () => {
       setError(deleteError.message || 'Error deleting review');
     } finally {
       setDeletingReviewId(null);
+    }
+  };
+
+  const handleToggleServiceVisibility = async (service) => {
+    try {
+      setActiveServiceActionId(service.id);
+      setError('');
+      const updatedService = await updateAdminServiceVisibility(service.id, !service.is_visible);
+      setServices((prev) =>
+        prev.map((item) => (item.id === updatedService.id ? updatedService : item))
+      );
+    } catch (actionError) {
+      setError(actionError.message || 'Error updating service visibility');
+    } finally {
+      setActiveServiceActionId(null);
+    }
+  };
+
+  const handleDeleteService = async (service) => {
+    const shouldDelete = window.confirm(`Delete service "${service.title}"?`);
+    if (!shouldDelete) return;
+
+    try {
+      setActiveServiceActionId(service.id);
+      setError('');
+      await deleteAdminService(service.id);
+      setServices((prev) => prev.filter((item) => item.id !== service.id));
+    } catch (actionError) {
+      setError(actionError.message || 'Error deleting service');
+    } finally {
+      setActiveServiceActionId(null);
     }
   };
 
@@ -138,7 +176,7 @@ const Monitoring = () => {
           </div>
           <div className="d-flex align-items-center gap-2">
             <Button variant="outline-secondary" onClick={() => navigate(-1)}>
-              Volver
+              Go back
             </Button>
           </div>
         </div>
@@ -202,6 +240,76 @@ const Monitoring = () => {
             </Card>
 
             <div className="mt-5">
+              <h1 className="fw-bold mb-2">Service moderation</h1>
+            </div>
+            <Card className="border-0 shadow-sm" style={{ borderRadius: '16px' }}>
+              <Card.Body className="p-4">
+                {services.length === 0 ? (
+                  <p className="text-muted mb-0">No services published by this user.</p>
+                ) : (
+                  <ListGroup variant="flush">
+                    {services.map((service) => {
+                      const isServiceActionActive = activeServiceActionId === service.id;
+
+                      return (
+                        <ListGroup.Item
+                          key={service.id}
+                          className="py-3 d-flex flex-column flex-lg-row justify-content-between align-items-start gap-3"
+                        >
+                          <div className="d-flex gap-3">
+                            {service.image_key && (
+                              <img
+                                src={service.image_key}
+                                alt={service.title}
+                                style={{
+                                  width: '96px',
+                                  height: '72px',
+                                  objectFit: 'cover',
+                                  borderRadius: '10px',
+                                }}
+                              />
+                            )}
+                            <div>
+                              <div className="d-flex align-items-center gap-2 flex-wrap">
+                                <span className="fw-bold">{service.title}</span>
+                                <Badge bg={service.is_visible ? 'success' : 'secondary'}>
+                                  {service.is_visible ? 'Visible' : 'Hidden'}
+                                </Badge>
+                              </div>
+                              <p className="mb-1 text-muted">{service.description}</p>
+                              <div className="text-muted small">
+                                {service.price} coins · {service.home_service ? 'Home service' : service.address || 'Address pending'}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="d-flex gap-2 flex-wrap">
+                            <Button
+                              variant={service.is_visible ? 'outline-secondary' : 'outline-success'}
+                              size="sm"
+                              disabled={isServiceActionActive}
+                              onClick={() => handleToggleServiceVisibility(service)}
+                            >
+                              {service.is_visible ? 'Hide' : 'Show'}
+                            </Button>
+                            <Button
+                              variant="outline-danger"
+                              size="sm"
+                              disabled={isServiceActionActive}
+                              onClick={() => handleDeleteService(service)}
+                            >
+                              {isServiceActionActive ? 'Working...' : 'Delete'}
+                            </Button>
+                          </div>
+                        </ListGroup.Item>
+                      );
+                    })}
+                  </ListGroup>
+                )}
+              </Card.Body>
+            </Card>
+
+            <div className="mt-5">
               <h1 className="fw-bold mb-2">Reviews</h1>
             </div>
             <Card className="border-0 shadow-sm" style={{ borderRadius: '16px' }}>
@@ -234,7 +342,7 @@ const Monitoring = () => {
                           disabled={deletingReviewId === review.id}
                           onClick={() => handleDeleteReview(review)}
                         >
-                          {deletingReviewId === review.id ? 'Eliminando...' : 'Eliminar'}
+                          {deletingReviewId === review.id ? 'Deleting...' : 'Delete'}
                         </Button>
                       </ListGroup.Item>
                     ))}

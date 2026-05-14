@@ -55,7 +55,7 @@ const UserListCard = ({ user, roleLabel, badgeVariant, onToggleActive, isTogglin
             disabled={isToggling}
             onClick={() => onToggleActive?.(user.id, !isActive)}
           >
-            {isToggling ? 'Procesando...' : toggleLabel}
+            {isToggling ? 'Processing...' : toggleLabel}
           </Button>
           <Button
             variant="outline-danger"
@@ -64,7 +64,7 @@ const UserListCard = ({ user, roleLabel, badgeVariant, onToggleActive, isTogglin
             disabled={isDeleting}
             onClick={() => onDelete?.(user)}
           >
-            {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            {isDeleting ? 'Deleting...' : 'Delete'}
           </Button>
         </div>
       </Card.Body>

@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Modal, Form, Button } from 'react-bootstrap';
 import Request from '../components/Request';
-import { getServiceImage } from '../constants/serviceImages';
 import {
   acceptInboxRequest,
   getInbox,
@@ -20,11 +19,10 @@ const Inbox = () => {
   const [acceptForm, setAcceptForm] = useState({ clarification: '' });
   const [rejectReason, setRejectReason] = useState('');
 
-  // Enriquece lo que viene del backend con la imagen local que necesita la UI.
   const normalizeRequests = (items = []) =>
     items.map((item) => ({
       ...item,
-      image: getServiceImage(item.image_key),
+      image: item.image_key,
     }));
 
   useEffect(() => {

@@ -27,7 +27,7 @@ const DashboardAdmin = () => {
 				setAdmins(adminsData);
 				setUsers(usersData);
 			} catch (error) {
-				setErrorMessage(error.message || 'No se pudo cargar la informacion del dashboard.');
+				setErrorMessage(error.message || 'The dashboard information could not be loaded.');
 			} finally {
 				setIsLoading(false);
 			}
@@ -62,7 +62,7 @@ const DashboardAdmin = () => {
 				)
 			);
 		} catch (error) {
-			setErrorMessage(error.message || 'No se pudo actualizar el estado del usuario.');
+			setErrorMessage(error.message || 'The user status could not be updated.');
 		} finally {
 			setActiveToggleId(null);
 		}
@@ -71,7 +71,7 @@ const DashboardAdmin = () => {
 	const handleDeleteUser = async (userToDelete) => {
 		if (!userToDelete) return;
 		const fullName = `${userToDelete.firstName} ${userToDelete.lastName}`;
-		const shouldDelete = window.confirm(`Eliminar a ${fullName}?`);
+		const shouldDelete = window.confirm(`Delete ${fullName}?`);
 		if (!shouldDelete) return;
 
 		setActiveDeleteId(userToDelete.id);
@@ -83,7 +83,7 @@ const DashboardAdmin = () => {
 			setAdmins((prev) => prev.filter((admin) => admin.id !== userToDelete.id));
 			setUsers((prev) => prev.filter((currentUser) => currentUser.id !== userToDelete.id));
 		} catch (error) {
-			setErrorMessage(error.message || 'No se pudo eliminar el usuario.');
+			setErrorMessage(error.message || 'The user could not be deleted.');
 		} finally {
 			setActiveDeleteId(null);
 		}
@@ -103,23 +103,23 @@ const DashboardAdmin = () => {
 							variant={activeView === 'admins' ? 'primary' : 'outline-primary'}
 							onClick={() => setActiveView('admins')}
 						>
-							Ver administradores
+							Admin
 						</Button>
 						<Button
 							variant={activeView === 'users' ? 'primary' : 'outline-primary'}
 							onClick={() => setActiveView('users')}
 						>
-							Ver usuarios
+							Users
 						</Button>
 					</div>
 				</div>
 
 				{isLoading ? (
-					<p className="text-muted mb-0">Cargando usuarios...</p>
+					<p className="text-muted mb-0">Loading users...</p>
 				) : errorMessage ? (
 					<p className="text-danger mb-0">{errorMessage}</p>
 				) : currentUsers.length === 0 ? (
-					<p className="text-muted mb-0">No hay registros para mostrar.</p>
+					<p className="text-muted mb-0">There are no records to display.</p>
 				) : (
 					<Row className="g-3">
 						{currentUsers.map((user) => (

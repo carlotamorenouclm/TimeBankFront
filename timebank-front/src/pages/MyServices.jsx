@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Button, Modal, Form } from 'react-bootstrap';
 import ServiceCard from '../components/ServiceCard';
-import { getServiceImage } from '../constants/serviceImages';
 import { createServiceOffer, deleteServiceOffer, getDashboardServices, getServiceReviews } from '../services/portal/PortalService';
 import RatingStars from '../components/RatingStars';
 
@@ -251,13 +250,18 @@ const MyServices = () => {
                     .filter(Boolean)
                     .join(' · ')}
                   price={`${service.price} coins`}
-                  image={getServiceImage(service.image_key)}
+                  image={service.image_key}
                   actionLabel="Delete"
                   actionDisabled={false}
                   onAction={() => openDeleteModal(service)}
                   overallRating={service.overall_rating ?? null}
                   showSeeReviews={true}
                   onSeeReviews={() => openReviewsModal(service)}
+                  statusBadge={
+                    service.is_visible === false
+                      ? { label: 'Hidden by admin', variant: 'secondary' }
+                      : null
+                  }
                 />
               </Col>
             ))

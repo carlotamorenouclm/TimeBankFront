@@ -1,7 +1,7 @@
 // Visual card for each service shown in the user catalog.
 
 import React from 'react';
-import { Card, Row, Col, Button } from 'react-bootstrap';
+import { Badge, Card, Row, Col, Button } from 'react-bootstrap';
 import ButtonPill from './ButtonPill';
 import RatingStars from './RatingStars';
 
@@ -20,6 +20,7 @@ const ServiceCard = ({
   overallRating = null,
   onSeeReviews = null,
   showSeeReviews = false,
+  statusBadge = null,
 }) => {
   const formattedRating =
     overallRating !== null && overallRating !== undefined
@@ -56,12 +57,19 @@ const ServiceCard = ({
         <Col xs={12} md={9}>
           <Card.Body className="h-100 d-flex flex-column flex-md-row justify-content-between gap-4 p-4">
             <div className="flex-grow-1">
-              <Card.Title
-                className="fw-bold mb-3"
-                style={{ color: 'var(--deep-blue)', fontSize: '1.35rem' }}
-              >
-                {title}
-              </Card.Title>
+              <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
+                <Card.Title
+                  className="fw-bold mb-0"
+                  style={{ color: 'var(--deep-blue)', fontSize: '1.35rem' }}
+                >
+                  {title}
+                </Card.Title>
+                {statusBadge && (
+                  <Badge bg={statusBadge.variant || 'secondary'}>
+                    {statusBadge.label}
+                  </Badge>
+                )}
+              </div>
 
               <Card.Text className="mb-2">
                 {description}
