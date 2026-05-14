@@ -19,6 +19,13 @@ export const updateMyProfile = (payload) =>
     body: JSON.stringify(payload),
   });
 
+// Ejecuta la operacion de change my password contra la API.
+export const changeMyPassword = (payload) =>
+  apiRequest('/me/password', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
 // Ejecuta la operacion de delete my account contra la API.
 export const deleteMyAccount = () =>
   apiRequest('/me/delete', {
