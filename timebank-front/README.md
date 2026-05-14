@@ -48,11 +48,11 @@ The wallet page asks the backend to create a Stripe Checkout session, redirects 
 - Public home, login, and signup.
 - User dashboard for browsing services from other users.
 - `My services` for publishing, deleting, and reviewing feedback on owned services.
-- `My purchases` and `My sales` for transaction history, chat, request completion, and reviews.
+- `My purchases` and `My sales` for transaction history, update notifications, chat, request completion, and reviews.
 - Inbox for accepting or rejecting received service requests.
 - Wallet with Stripe Checkout recharge flow.
 - Profile edition and account deletion.
-- Admin dashboard for user/admin management, role changes, active status, wallet balance changes, monitoring, and review moderation.
+- Admin dashboard for user/admin management, role changes, active status, wallet balance changes, monitoring, service moderation, and review moderation.
 
 ## Credits
 
