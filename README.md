@@ -161,4 +161,5 @@ Authorization: Bearer <access_token>
 
 ## Regular User Guide
 Youtube list with all the user guide videos:
+
 https://www.youtube.com/playlist?list=PL5ISQmiP9ucbDl44ZIRndhnTX8tamhMLy 
