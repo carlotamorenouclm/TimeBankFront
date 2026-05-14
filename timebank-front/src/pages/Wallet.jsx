@@ -1,7 +1,11 @@
 // Vista de wallet del usuario: muestra saldo, recargas y permite anadir saldo.
 import React, { useEffect, useState } from 'react';
 import { Row, Col, Card, Button, Form, Modal } from 'react-bootstrap';
-import { getWallet, rechargeWallet } from '../services/portal/PortalService';
+import {
+  confirmWalletCheckoutSession,
+  createWalletCheckoutSession,
+  getWallet,
+} from '../services/portal/PortalService';
 
 const Wallet = () => {
   const [balance, setBalance] = useState(0);
@@ -12,17 +16,39 @@ const Wallet = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  const applyWalletData = (walletData) => {
+    setBalance(walletData?.balance || 0);
+    setStatus(walletData?.status || 'Active');
+    setRecharges(walletData?.recharges || []);
+  };
 
   useEffect(() => {
     const loadWallet = async () => {
       try {
         setIsLoading(true);
         setError('');
+        setMessage('');
 
-        const walletData = await getWallet();
-        setBalance(walletData?.balance || 0);
-        setStatus(walletData?.status || 'Active');
-        setRecharges(walletData?.recharges || []);
+        const searchParams = new URLSearchParams(window.location.search);
+        const checkoutSessionId = searchParams.get('stripe_session_id');
+        const wasCancelled = searchParams.get('stripe_cancelled') === '1';
+        let walletData;
+
+        if (checkoutSessionId) {
+          walletData = await confirmWalletCheckoutSession(checkoutSessionId);
+          setMessage('Payment confirmed. Your coins were added to the wallet.');
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+          walletData = await getWallet();
+          if (wasCancelled) {
+            setMessage('Payment cancelled. No coins were added.');
+            window.history.replaceState({}, document.title, window.location.pathname);
+          }
+        }
+
+        applyWalletData(walletData);
       } catch (loadError) {
         setError(loadError.message || 'Error loading wallet');
       } finally {
@@ -41,15 +67,11 @@ const Wallet = () => {
     try {
       setIsSaving(true);
       setError('');
-      const walletData = await rechargeWallet(numericAmount);
-      setBalance(walletData?.balance || 0);
-      setStatus(walletData?.status || 'Active');
-      setRecharges(walletData?.recharges || []);
-      setAmount('');
-      setShowModal(false);
+      setMessage('');
+      const checkoutSession = await createWalletCheckoutSession(numericAmount);
+      window.location.assign(checkoutSession.checkout_url);
     } catch (saveError) {
-      setError(saveError.message || 'Error recharging wallet');
-    } finally {
+      setError(saveError.message || 'Error starting Stripe payment');
       setIsSaving(false);
     }
   };
@@ -58,6 +80,7 @@ const Wallet = () => {
     <>
       <h2 className="fw-bold mb-4">Wallet</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+      {message && <div className="alert alert-info">{message}</div>}
       {isLoading && <p className="text-muted">Loading wallet...</p>}
 
       {!isLoading && (
@@ -183,7 +206,7 @@ const Wallet = () => {
               Cancel
             </Button>
             <Button variant="primary" onClick={handleRecharge} disabled={isSaving}>
-              {isSaving ? 'Saving...' : 'Confirm'}
+              {isSaving ? 'Redirecting...' : 'Pay with Stripe'}
             </Button>
           </div>
         </Modal.Body>

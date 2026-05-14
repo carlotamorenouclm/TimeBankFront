@@ -70,8 +70,13 @@ export const getServiceReviews = (serviceOfferId) =>
 
 export const getWallet = () => apiRequest('/portal/wallet');
 
-export const rechargeWallet = (amount) =>
-  apiRequest('/portal/wallet/recharge', {
+export const createWalletCheckoutSession = (amount) =>
+  apiRequest('/portal/wallet/checkout-session', {
     method: 'POST',
     body: JSON.stringify({ amount }),
+  });
+
+export const confirmWalletCheckoutSession = (sessionId) =>
+  apiRequest(`/portal/wallet/checkout-session/${encodeURIComponent(sessionId)}/confirm`, {
+    method: 'POST',
   });
