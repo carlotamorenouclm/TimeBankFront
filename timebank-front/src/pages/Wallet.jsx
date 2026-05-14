@@ -48,8 +48,6 @@ const Wallet = () => {
         return;
       }
     }
-
-    setMessage('Payment completed in Stripe. The webhook is still processing; refresh the wallet in a few seconds.');
   }, [applyWalletData]);
 
   useEffect(() => {
@@ -67,7 +65,6 @@ const Wallet = () => {
 
         if (checkoutSessionId) {
           walletData = await getWallet();
-          setMessage('Payment completed in Stripe. Waiting for webhook confirmation...');
           applyWalletData(walletData);
           window.history.replaceState({}, document.title, window.location.pathname);
           await waitForWebhookWalletUpdate(walletData);
